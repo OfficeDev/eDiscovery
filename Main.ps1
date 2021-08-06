@@ -4,6 +4,7 @@
 . .\Utilities\ValidatePrerequisites.ps1
 
 # Global Variables: 
+[int] $global:StartTime
 # Has Error ocurred
 [bool] $global:ErrorOccurred = $false
 # Has window closed with title bar
@@ -12,8 +13,7 @@
 [string] $global:AppNameShortHand = "eDiscShift"
 [string] $global:AppName = "eDiscoveryShift"
 [string] $global:AppDirectory = "Microsoft\$global:AppName"
-# Admin Name
-[string] $global:userName 
+
 
 #UI's
 [Array] $global:ViewsUI = @("Welcome.psm1", "CaseSelection.psm1", "ReviewSelection.psm1")
@@ -33,6 +33,26 @@ class Mediator {
     
 }
 
+class ReportStats {
+    [string] $DomainName
+    [string] $OrgName
+    $SelectedCases
+    $MigratedCases
+    $FailedCases
+    [int] $ElapsedMilliseconds
+
+
+    ReportStats() {
+        $this.DomainName = ""
+        $this.OrgName = ""
+        $this.SelectedCases = 0
+        $this.MigratedCases = 0
+        $this.FailedCases = 0
+        $this.ElapsedMilliseconds = 0
+    }
+    
+}
+
 class CoreCase {
     [string] $CaseName
     [string] $CaseId
@@ -43,8 +63,7 @@ class CoreCase {
     [string] $LogFile
     
 
-    ExecuteCommandlets() {}
-
+    #ExecuteCommandlets() {}
 }
 
 function Get-AppDirectory {
@@ -197,7 +216,7 @@ function Invoke-eDiscoveryShift {
     Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
     $CoreCasesArray = Get-eDiscoveryCoreCases -LogFile $LogFile
 
-    [array]$CoreCasesObj = Create-eDiscoveryCases -CoreCasesArray $CoreCasesArray -LogFile $LogFile
+    Create-eDiscoveryCases -CoreCasesArray $CoreCasesArray -LogFile $LogFile
     
 
     #If Telemetry is enabled (For Customers), then collect telemetry
@@ -215,16 +234,16 @@ function Invoke-eDiscoveryConnections {
     )
 
     try {
-        $global:userName = Read-Host -Prompt 'Input the user name' -ErrorAction:SilentlyContinue
+        $userName = Read-Host -Prompt 'Input the user name' -ErrorAction:SilentlyContinue
         $InfoMessage = "Connecting to Security & Compliance Center"
         Write-Host "$(Get-Date) $InfoMessage"
         Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
-        Connect-IPPSSession -UserPrincipalName $global:userName -ErrorAction:SilentlyContinue -WarningAction:SilentlyContinue
+        Connect-IPPSSession -UserPrincipalName $userName -ErrorAction:SilentlyContinue -WarningAction:SilentlyContinue
         try {
             $InfoMessage = "Connecting to Exchange Online"
             Write-Host "$(Get-Date) $InfoMessage"
             Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
-            Connect-ExchangeOnline -Prefix EXOP -UserPrincipalName $global:userName -ShowBanner:$false -ErrorAction:SilentlyContinue -WarningAction:SilentlyContinue
+            Connect-ExchangeOnline -Prefix EXOP -UserPrincipalName $userName -ShowBanner:$false -ErrorAction:SilentlyContinue -WarningAction:SilentlyContinue
         }
         catch {
             Write-Host "Error:$(Get-Date) There was an issue in connecting to Exchange Online. Please try running the tool again after some time." -ForegroundColor:Red
@@ -337,37 +356,97 @@ function Create-eDiscoveryCases {
     # Load individual check definitions
     $CaseFiles = Get-ChildItem "$PSScriptRoot\Migration"
     
+    $IsCoreCasesPresent = $false
+    
     ForEach ($CaseFile in $CaseFiles) {
 
         if ($CaseFile.BaseName -match '^Create-(.*)$') {
-            if ($matches[1] -eq "Case") {
-                Write-Verbose "Importing $($matches[1])"
-                . $CaseFile.FullName
+            if ($matches[1] -eq "Case") { 
+                Write-Verbose "Importing $($matches[1])" 
+                . $CaseFile.FullName | Out-Null
 
                 foreach ($case in $CoreCasesArray) {
                     $CoreCase = New-Object -TypeName $matches[1]($case.Name, $case.Identity, $case.Description, "aka.ms")
                     $CoreCase.LogFile = $LogFile
                     $CoreCasesObj += $CoreCase
+                    $IsCoreCasesPresent = $true
                 }
             }
         }
     }
-    
-    
+    $global:StartTime = $($(Get-Date).Millisecond)
+
+    if($IsCoreCasesPresent -eq $false)
+    {
+        Absent-CaseStats -LogFile $LogFile
+        return
+    }
+
     [array]$UpdatedCoreCaseObj = Invoke-Views -CoreCasesObj $CoreCasesObj -LogFile $LogFile 
 
+    #Migration with stats computation
+    if($($UpdatedCoreCaseObj.Count) -eq 0)
+    {
+        Absent-CaseStats -LogFile $LogFile
+        return
+    }
+
+    $SelectedCases = 0
+    $MigratedCases = 0
+    $FailedCases = 0
 
     $InfoMessage = "Case Migration Started"
     Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
     foreach ($CoreCase in $UpdatedCoreCaseObj) {
         if($($CoreCase.IsDeletionEnabled) -eq $false)
         {
-            $CoreCase.ExecuteCommandlets();
+            $SelectedCases += 1
+            [bool] $IsMigrated = $CoreCase.ExecuteCommandlets();
+            if($IsMigrated -eq $true)
+            {
+                $MigratedCases += 1
+            }
+            else
+            {
+                $FailedCases += 1
+            }
         }
     }
     $InfoMessage = "Migration Completed"
     Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
     
+    $MigratedCases = ($MigratedCases/$SelectedCases)*100
+    $FailedCases = ($FailedCases/$SelectedCases)*100
+
+    [ReportStats]$ReportStatsObj = new-object -TypeName ReportStats
+
+    $ReportStatsObj.DomainName = (Get-AcceptedDomains -LogFile $LogFile)
+    $ReportStatsObj.OrgName = (Get-OrganisationName -LogFile $LogFile)
+    $ReportStatsObj.SelectedCases = $SelectedCases
+    $ReportStatsObj.MigratedCases = $MigratedCases
+    $ReportStatsObj.FailedCases = $FailedCases
+    $ReportStatsObj.ElapsedMilliseconds =  $($(Get-Date).Millisecond) - $global:StartTime
+
+}
+
+Function Absent-CaseStats {
+    Param(
+        $LogFile
+    )
+
+    $InfoMessage = "No cases to migrate"
+    Write-Host "$(Get-Date) $InfoMessage" -ForegroundColor:Yellow
+    Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
+            
+    [ReportStats]$ReportStatsObj = new-object -TypeName ReportStats
+
+    $ReportStatsObj.DomainName = (Get-AcceptedDomains -LogFile $LogFile)
+    $ReportStatsObj.OrgName = (Get-OrganisationName -LogFile $LogFile)
+    $ReportStatsObj.SelectedCases = 0
+    $ReportStatsObj.MigratedCases = 0
+    $ReportStatsObj.FailedCases = 0
+    $ReportStatsObj.ElapsedMilliseconds =  $($(Get-Date).Millisecond) - $global:StartTime
+    return
 }
 
 Function Get-AcceptedDomains {
