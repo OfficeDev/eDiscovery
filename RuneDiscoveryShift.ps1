@@ -7,7 +7,7 @@ Unblock-File ".\Utilities\*"
 Unblock-File ".\Views\*"
 
 # Importing Scripts
-. .\Main.ps1
+. .\Main.ps1 | out-null
 
 
 
