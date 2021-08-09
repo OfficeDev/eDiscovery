@@ -58,6 +58,7 @@ class CoreCase {
     [string] $CaseId
     [string] $Description
     [string] $LinkURL
+    [string] $LinkText 
     [bool] $IsMigrationEnabled
     [bool] $IsDeletionEnabled
     [string] $LogFile
@@ -366,7 +367,7 @@ function Create-eDiscoveryCases {
                 . $CaseFile.FullName | Out-Null
 
                 foreach ($case in $CoreCasesArray) {
-                    $CoreCase = New-Object -TypeName $matches[1]($case.Name, $case.Identity, $case.Description, "aka.ms")
+                    $CoreCase = New-Object -TypeName $matches[1]($case.Name, $case.Identity, $case.Description, "https://compliance.microsoft.com/classicediscovery/v1/$($case.Identity)")
                     $CoreCase.LogFile = $LogFile
                     $CoreCasesObj += $CoreCase
                     $IsCoreCasesPresent = $true
