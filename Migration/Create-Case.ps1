@@ -4,11 +4,15 @@
 
 class Case : CoreCase {
 
+    [string] $AdvancedCaseId = "NA"
+    [string] $AdvancedLinkURL = "NA"
+
     Case($CaseName, $CaseId, $Description, $LinkURL) {
         $this.CaseName = $CaseName
         $this.CaseId = $CaseId
         $this.Description = $Description
         $this.LinkURL = $LinkURL
+        $this.LinkText = "View Case"
         $this.IsMigrationEnabled = $false
         $this.IsDeletionEnabled = $false
     }
@@ -25,6 +29,8 @@ class Case : CoreCase {
             
         try {
             $AdvancedCase = New-ComplianceCase -Name "$($this.CaseName)" -CaseType AdvancedEdiscovery -Confirm:$false -Description "$($this.Description)" -ErrorAction:SilentlyContinue
+            $this.AdvancedCaseId = $AdvancedCase.Identity
+            $this.AdvancedLinkURL = "https://compliance.microsoft.com/advancedediscovery/v2/$($this.AdvancedCaseId)"
             return $true
         }
         catch {

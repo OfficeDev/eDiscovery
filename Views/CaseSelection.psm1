@@ -33,6 +33,10 @@ $xaml.SelectNodes("//*[@Name]") | ForEach-Object {
 
 $Var_CasesDataGrid.ItemsSource = $CoreCasesObj
 
+$Var_DataGridHyperlink.Add_PreviewMouseDown({
+    [system.Diagnostics.Process]::start('https://www.google.com')
+})
+
 $NotCloseEvent = $false
 
 $Var_MigrateSelectedBtn.Add_Click( {
