@@ -1,6 +1,7 @@
 Unblock-File ".\*"
 Unblock-File ".\Images\*"
 Unblock-File ".\Logging\*"
+Unblock-File ".\Reporting\*"
 Unblock-File ".\Migration\*"
 Unblock-File ".\Telemetry\*"
 Unblock-File ".\Utilities\*"

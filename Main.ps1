@@ -2,6 +2,7 @@
 . .\Logging\Log.ps1
 . .\Telemetry\Telemetry.ps1
 . .\Utilities\ValidatePrerequisites.ps1
+. .\Reporting\Reporting.ps1
 
 # Global Variables: 
 [int] $global:StartTime
@@ -62,6 +63,7 @@ class CoreCase {
     [bool] $IsMigrationEnabled
     [bool] $IsDeletionEnabled
     [string] $LogFile
+    [bool]$IsMigrated
     
 
     #ExecuteCommandlets() {}
@@ -166,7 +168,7 @@ function Start-Migration {
         Invoke-eDiscoveryShift -LogFile $LogFile -ErrorAction:SilentlyContinue
         $InfoMessage = "Complete! Log file is in $LogFile" 
         Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
-        Write-Host "$(Get-Date) $InfoMessage" -ForegroundColor Green
+        Write-Host "$(Get-Date) $InfoMessage" -ForegroundColor Yellow
         Write-Log -StopInfo -LogFile $LogFile -ErrorAction:SilentlyContinue
     }
     catch {
@@ -428,6 +430,15 @@ function Create-eDiscoveryCases {
     $ReportStatsObj.FailedCases = $FailedCases
     $ReportStatsObj.ElapsedMilliseconds =  $($(Get-Date).Millisecond) - $global:StartTime
 
+    try
+    { 
+        Create-Report -CasesArray $UpdatedCoreCaseObj -ReportObj $ReportStatsObj -LogFile $LogFile
+    }
+    catch
+    {
+        $ErrorMessage = $_.ToString()
+        Write-host $ErrorMessage
+    }
 }
 
 Function Absent-CaseStats {
