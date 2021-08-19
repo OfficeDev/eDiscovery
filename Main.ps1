@@ -69,6 +69,16 @@ class CoreCase {
     #ExecuteCommandlets() {}
 }
 
+class CoreHold {
+    [string] $CoreCaseName
+    [string] $PolicyName 
+    [string] $PolicyDescription 
+    [string] $RuleName 
+    [string] $RuleDescription 
+    [string] $Query 
+    [string] $LogFile
+}
+
 function Get-AppDirectory {
     <#
 
@@ -219,6 +229,7 @@ function Invoke-eDiscoveryShift {
     Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
     $CoreCasesArray = Get-eDiscoveryCoreCases -LogFile $LogFile
 
+
     Create-eDiscoveryCases -CoreCasesArray $CoreCasesArray -LogFile $LogFile
     
 
@@ -327,6 +338,32 @@ function Invoke-Views {
     return $SecondReviewedCoreCaseObj
 }
 
+function Get-eDiscoveryCoreCasesHolds {
+    Param
+    (
+        $CaseName,
+        [String]$LogFile
+    )
+    $CoreCaseHoldsArray = @()
+
+    try {
+       
+        #Fetch Holds
+        $InfoMessage = "Getting Core Compliance Case Holds"
+        Write-Host "$(Get-Date) $InfoMessage"
+        Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
+        $CoreCaseHoldsArray = Get-CaseHoldPolicy -case "$CaseName" -DistributionDetail
+        
+    }
+    catch {
+        Write-Host "Error:$(Get-Date) There was an issue in fetching Core Compliance Case Holds. Please try running the tool again after some time." -ForegroundColor:Red
+        $ErrorMessage = $_.ToString()
+        $StackTraceInfo = $_.ScriptStackTrace
+        Write-Log -IsError -ErrorMessage $ErrorMessage -StackTraceInfo $StackTraceInfo -LogFile $LogFile -ErrorAction:SilentlyContinue
+    }
+    return $CoreCaseHoldsArray
+}
+
 function Get-eDiscoveryCoreCases {
     Param
     (
@@ -398,6 +435,7 @@ function Create-eDiscoveryCases {
     $MigratedCases = 0
     $FailedCases = 0
 
+    $MigratedCoreCases = @()
     $InfoMessage = "Case Migration Started"
     Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
     foreach ($CoreCase in $UpdatedCoreCaseObj) {
@@ -408,12 +446,58 @@ function Create-eDiscoveryCases {
             if($IsMigrated -eq $true)
             {
                 $MigratedCases += 1
+                $MigratedCoreCases += $CoreCase
             }
             else
             {
                 $FailedCases += 1
             }
         }
+    }
+    foreach ($CoreCase in $MigratedCoreCases) {
+
+        $Holds = Get-eDiscoveryCoreCasesHolds -CaseName $CoreCase.CaseName -LogFile $CoreCase.LogFile
+        
+        $AdvCaseName = $CoreCase.AdvCaseName
+
+        $NewHoldObj = @()
+        $IsHoldPresent = $false
+        
+        $CaseFiles = Get-ChildItem "$PSScriptRoot\Migration"
+        ForEach ($CaseFile in $CaseFiles) {
+
+            if ($CaseFile.BaseName -match '^Create-(.*)$') {
+                if ($matches[1] -eq "Hold") { 
+                    Write-Verbose "Importing $($matches[1])" 
+                    . $CaseFile.FullName | Out-Null
+    
+                    foreach ($HoldData in $Holds) {
+                        $NewHold = New-Object -TypeName $matches[1]($CoreCase.CaseName,$HoldData.Name,$HoldData.Comment,[array]$HoldData.ExchangeLocation,[array]$HoldData.SharePointLocation,[array]$HoldData.PublicFolderLocation)
+                        $NewHold.LogFile = $CoreCase.LogFile
+                        $NewHoldObj += $NewHold
+                        $IsHoldPresent = $true
+                    }
+                }
+            }
+        }
+        if($IsHoldPresent -eq $true)
+        {
+            $HasHoldMigrationFailed = $false
+            foreach($HoldInfo in $NewHoldObj)
+            {
+                $result = $HoldInfo.ExecuteHoldCommandlets($AdvCaseName)
+                if($result -eq $false)
+                {
+                    $HasHoldMigrationFailed = $true
+                }
+            }
+            if($HasHoldMigrationFailed -eq $true)
+            {
+                $MigratedCases -= 1
+                $FailedCases += 1
+            }
+        }
+        
     }
     $InfoMessage = "Migration Completed"
     Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue

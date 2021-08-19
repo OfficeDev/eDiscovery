@@ -1,12 +1,14 @@
 # Importing Scripts
 . "$($(get-item $PSCommandPath).Directory.parent.FullName)\Logging\Log.ps1"
 . "$($(get-item $PSCommandPath).Directory.parent.FullName)\Main.ps1"
+#. "$($(get-item $PSCommandPath).Directory.parent.FullName)\Migration\Create-Hold.ps1"
 
 class Case : CoreCase {
 
     [string] $AdvancedCaseId = "NA"
     [string] $AdvancedLinkURL = "NA"
     [string] $CaseMember = "NA"
+    [string] $AdvCaseName = "NA"
     Case($CaseName, $CaseId, $Description, $LinkURL) {
         $this.CaseName = $CaseName
         $this.CaseId = $CaseId
@@ -19,8 +21,9 @@ class Case : CoreCase {
     }
 
     [bool]ExecuteCommandlets() { 
+        
         $this.CaseMember = Get-compliancecasemember -Case "$($this.CaseName)"
-        $this.CaseName += "Migrated" 
+        $this.AdvCaseName = $this.CaseName + "Migrated" 
         $this.Description += " This was migrated from Core eDiscovery case ID: $($this.CaseId) on date: $(Get-Date -Format 'ddMMyy')." 
 
         $InfoMessage = "Creating Advance eDiscovery Case"
@@ -29,7 +32,8 @@ class Case : CoreCase {
             
             
         try {
-            $AdvancedCase = New-ComplianceCase -Name "$($this.CaseName)" -CaseType AdvancedEdiscovery -Confirm:$false -Description "$($this.Description)" 
+            $AdvancedCase = New-ComplianceCase -Name "$($this.AdvCaseName)" -CaseType AdvancedEdiscovery -Confirm:$false -Description "$($this.Description)" 
+           
             if($AdvancedCase.Identity -ne "" -and $null -ne $AdvancedCase.Identity)
             {
                 $this.AdvancedCaseId = $AdvancedCase.Identity
@@ -38,7 +42,7 @@ class Case : CoreCase {
                 {
                     foreach($member in $this.CaseMember)
                     {
-                        Add-compliancecasemember -Case "$($this.CaseName)" -Member "$($member.Name)"
+                        Add-compliancecasemember -Case "$($this.AdvCaseName)" -Member "$($member.Name)"
                     }
                 }
                 $this.IsMigrated= $true
