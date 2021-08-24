@@ -167,7 +167,7 @@ $objects | Export-Csv -ErrorAction Stop -path $temporaryCsvFile -noTypeInformati
                         $ReportSheet.Cells.Item($row,$column) = $CoreCase.CaseName
                         $column++
             
-                        $ReportSheet.Cells.Item($row,$column) = "Core Case Id:" + $CoreCase.CaseId + ", Advanced Case Id:" + $CoreCase.AdvancedCaseId
+                        $ReportSheet.Cells.Item($row,$column) = "Core Case Id:" + $CoreCase.CaseId +  "`n"  +"Advanced Case Id:" + $CoreCase.AdvancedCaseId
                         $column++
             
                         $ReportSheet.Cells.Item($row,$column) = $CoreCase.IsMigrated
@@ -206,7 +206,7 @@ $objects | Export-Csv -ErrorAction Stop -path $temporaryCsvFile -noTypeInformati
             $ReportSheet.columns.item(4).columnWidth = 25
             $ReportSheet.columns.item(5).columnWidth = 25
             $ReportSheet.columns.item(6).columnWidth = 25
-            $ReportSheet.columns.item(6).Style.WrapText = $true
+            
         
 
             $workbook.SaveAs($ReportFile,51)
