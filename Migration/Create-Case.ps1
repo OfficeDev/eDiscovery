@@ -4,11 +4,14 @@
 #. "$($(get-item $PSCommandPath).Directory.parent.FullName)\Migration\Create-Hold.ps1"
 
 class Case : CoreCase {
-
     [string] $AdvancedCaseId = "NA"
     [string] $AdvancedLinkURL = "NA"
     [string] $CaseMember = "NA"
     [string] $AdvCaseName = "NA"
+    [string] $Comment = ""
+    [string] $MigrationStatus = ""
+    [bool]$IsAlreadyPresent = $false
+    [string]$CaseMemberMigrated = "NA"
     Case($CaseName, $CaseId, $Description, $LinkURL) {
         $this.CaseName = $CaseName
         $this.CaseId = $CaseId
@@ -37,25 +40,57 @@ class Case : CoreCase {
             if($AdvancedCase.Identity -ne "" -and $null -ne $AdvancedCase.Identity)
             {
                 $this.AdvancedCaseId = $AdvancedCase.Identity
-                $this.AdvancedLinkURL = "https://compliance.microsoft.com/advancedediscovery/v2/$($this.AdvancedCaseId)"
+                $this.AdvancedLinkURL = "https://compliance.microsoft.com/advancedediscovery/cases/v2/$($this.AdvancedCaseId)?casename=$($this.AdvCaseName)&casesworkbench=Overview"
+
                 if($null -ne $this.CaseMember )
                 {
+                    $caseMemberCount =0
+                    $successCount =0
                     foreach($member in $this.CaseMember)
                     {
-                        Add-compliancecasemember -Case "$($this.AdvCaseName)" -Member "$($member.Name)"
+                        $caseMemberCount+=1
+                        try
+                        {
+                            Add-compliancecasemember -Case "$($this.AdvCaseName)" -Member "$($member.Name)"
+                            $successCount+=1
+                        }
+                        catch
+                        {
+                            #do nothing
+                        }
+                    }
+                    if( $caseMemberCount -eq $successCount)
+                    {
+                        $this.CaseMemberMigrated = "Success"
+                    }
+                    elseif(($caseMemberCount -gt $successCount) -and ($successCount -ne 0))
+                    {
+                        $this.CaseMemberMigrated = "Partial"
+                    }
+                    else {
+                        $this.CaseMemberMigrated = "Failed"
                     }
                 }
                 $this.IsMigrated= $true
                 return $true
             }
-            else {
+            else 
+            {
+                $AdvancedCaseExisting = Get-ComplianceCase -Identity "$($this.AdvCaseName)" -CaseType AdvancedEdiscovery 
+                if($AdvancedCaseExisting.Identity -ne "" -and $null -ne $AdvancedCaseExisting.Identity)
+                {
+                    $this.IsAlreadyPresent = $true
+                }
                 return $false
-            } 
-           
+            }            
         }
         catch {
             Write-Host "Error:$(Get-Date) There was an issue in creating Advance eDiscovery Case. Please try running the tool again after some time." -ForegroundColor:Red
             $ErrorMessage = $_.ToString()
+            if($ErrorMessage -contains "already exists")
+            {
+                $this.IsAlreadyPresent = $true
+            }
             $StackTraceInfo = $_.ScriptStackTrace
             Write-Log -IsError -ErrorMessage $ErrorMessage -StackTraceInfo $StackTraceInfo -LogFile $this.LogFile -ErrorAction:SilentlyContinue      
             return $false
