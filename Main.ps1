@@ -40,7 +40,8 @@ class ReportStats {
     $SelectedCases
     $MigratedCases
     $FailedCases
-    [int] $ElapsedMilliseconds
+    $PartiallyMigratedCases
+    [int] $ElapsedSeconds
 
 
     ReportStats() {
@@ -49,7 +50,8 @@ class ReportStats {
         $this.SelectedCases = 0
         $this.MigratedCases = 0
         $this.FailedCases = 0
-        $this.ElapsedMilliseconds = 0
+        $this.PartiallyMigratedCases = 0
+        $this.ElapsedSeconds = 0
     }
     
 }
@@ -252,19 +254,7 @@ function Invoke-eDiscoveryConnections {
         $InfoMessage = "Connecting to Security & Compliance Center"
         Write-Host "$(Get-Date) $InfoMessage"
         Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
-        Connect-IPPSSession -UserPrincipalName $userName -ErrorAction:SilentlyContinue -WarningAction:SilentlyContinue
-        try {
-            $InfoMessage = "Connecting to Exchange Online"
-            Write-Host "$(Get-Date) $InfoMessage"
-            Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
-            Connect-ExchangeOnline -Prefix EXOP -UserPrincipalName $userName -ShowBanner:$false -ErrorAction:SilentlyContinue -WarningAction:SilentlyContinue
-        }
-        catch {
-            Write-Host "Error:$(Get-Date) There was an issue in connecting to Exchange Online. Please try running the tool again after some time." -ForegroundColor:Red
-            $ErrorMessage = $_.ToString()
-            $StackTraceInfo = $_.ScriptStackTrace
-            Write-Log -IsError -ErrorMessage $ErrorMessage -StackTraceInfo $StackTraceInfo -LogFile $LogFile -ErrorAction:SilentlyContinue
-        }
+        Connect-IPPSSession -UserPrincipalName $userName -ErrorAction:SilentlyContinue -WarningAction:SilentlyContinue     
     }
     catch {
         Write-Host "Error:$(Get-Date) There was an issue in connecting to Security & Compliance Center. Please try running the tool again after some time." -ForegroundColor:Red
@@ -272,6 +262,31 @@ function Invoke-eDiscoveryConnections {
         $StackTraceInfo = $_.ScriptStackTrace
         Write-Log -IsError -ErrorMessage $ErrorMessage -StackTraceInfo $StackTraceInfo -LogFile $LogFile -ErrorAction:SilentlyContinue  
         throw 'There was an issue in connecting to Security & Compliance Center. Please try running the tool again after some time.'
+    }
+    try {
+        $InfoMessage = "Connecting to Exchange Online"
+        Write-Host "$(Get-Date) $InfoMessage"
+        Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
+        Connect-ExchangeOnline -Prefix EXOP -UserPrincipalName $userName -ShowBanner:$false -ErrorAction:SilentlyContinue -WarningAction:SilentlyContinue
+    }
+    catch {
+        Write-Host "Error:$(Get-Date) There was an issue in connecting to Exchange Online. Please try running the tool again after some time." -ForegroundColor:Red
+        $ErrorMessage = $_.ToString()
+        $StackTraceInfo = $_.ScriptStackTrace
+        Write-Log -IsError -ErrorMessage $ErrorMessage -StackTraceInfo $StackTraceInfo -LogFile $LogFile -ErrorAction:SilentlyContinue
+    }
+    try {
+        $InfoMessage = "Connecting to Microsoft Graph"
+        Write-Host "$(Get-Date) $InfoMessage"
+        Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
+        Connect-MgGraph -Scopes "Group.ReadWrite.All,eDiscovery.ReadWrite.All" -ErrorAction:SilentlyContinue -WarningAction:SilentlyContinue
+        Select-MgProfile -Name "beta"
+    }
+    catch {
+        Write-Host "Error:$(Get-Date) There was an issue in connecting to Microsoft Graph. Please try running the tool again after some time." -ForegroundColor:Red
+        $ErrorMessage = $_.ToString()
+        $StackTraceInfo = $_.ScriptStackTrace
+        Write-Log -IsError -ErrorMessage $ErrorMessage -StackTraceInfo $StackTraceInfo -LogFile $LogFile -ErrorAction:SilentlyContinue
     }
 }
 
@@ -414,7 +429,8 @@ function Create-eDiscoveryCases {
             }
         }
     }
-    $global:StartTime = $($(Get-Date).Millisecond)
+
+    $global:StartTime = $($(Get-Date).TotalSeconds)
 
     if($IsCoreCasesPresent -eq $false)
     {
@@ -434,11 +450,16 @@ function Create-eDiscoveryCases {
     $SelectedCases = 0
     $MigratedCases = 0
     $FailedCases = 0
+    $PartialMigratedHolds = 0
+    $CompletelyMigratedHolds = 0
+    $NotMigratedHolds = 0
 
     $MigratedCoreCases = @()
     $InfoMessage = "Case Migration Started"
     Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
-    foreach ($CoreCase in $UpdatedCoreCaseObj) {
+    foreach ($CoreCase in $UpdatedCoreCaseObj) 
+    {
+        $countOfHold = 0
         if($($CoreCase.IsDeletionEnabled) -eq $false)
         {
             $SelectedCases += 1
@@ -447,72 +468,248 @@ function Create-eDiscoveryCases {
             {
                 $MigratedCases += 1
                 $MigratedCoreCases += $CoreCase
-            }
-            else
-            {
-                $FailedCases += 1
-            }
-        }
-    }
-    foreach ($CoreCase in $MigratedCoreCases) {
 
-        $Holds = Get-eDiscoveryCoreCasesHolds -CaseName $CoreCase.CaseName -LogFile $CoreCase.LogFile
+                $Holds = Get-eDiscoveryCoreCasesHolds -CaseName $CoreCase.CaseName -LogFile $CoreCase.LogFile
+                foreach($hold in $Holds)
+                {
+                    $countOfHold += 1
+                }
+
+                $AdvCaseId = $CoreCase.AdvancedCaseId
+
+                $NewHoldObj = @()
+                $IsHoldPresent = $false
         
-        $AdvCaseName = $CoreCase.AdvCaseName
-
-        $NewHoldObj = @()
-        $IsHoldPresent = $false
-        
-        $CaseFiles = Get-ChildItem "$PSScriptRoot\Migration"
-        ForEach ($CaseFile in $CaseFiles) {
-
-            if ($CaseFile.BaseName -match '^Create-(.*)$') {
-                if ($matches[1] -eq "Hold") { 
-                    Write-Verbose "Importing $($matches[1])" 
-                    . $CaseFile.FullName | Out-Null
+                $CaseFiles = Get-ChildItem "$PSScriptRoot\Migration"
+                ForEach ($CaseFile in $CaseFiles) 
+                {
+                    if ($CaseFile.BaseName -match '^Create-(.*)$') 
+                    {
+                        if ($matches[1] -eq "Hold") 
+                        { 
+                            Write-Verbose "Importing $($matches[1])" 
+                            . $CaseFile.FullName | Out-Null
     
-                    foreach ($HoldData in $Holds) {
-                        $NewHold = New-Object -TypeName $matches[1]($CoreCase.CaseName,$HoldData.Name,$HoldData.Comment,[array]$HoldData.ExchangeLocation,[array]$HoldData.SharePointLocation,[array]$HoldData.PublicFolderLocation)
-                        $NewHold.LogFile = $CoreCase.LogFile
-                        $NewHoldObj += $NewHold
-                        $IsHoldPresent = $true
+                            foreach ($HoldData in $Holds) 
+                            {
+                                $NewHold = New-Object -TypeName $matches[1]($CoreCase.CaseName,$HoldData.Name,$HoldData.Comment,[array]$HoldData.ExchangeLocation.Name,[array]$HoldData.SharePointLocation.Name,[array]$HoldData.PublicFolderLocation)
+                                $NewHold.LogFile = $CoreCase.LogFile
+                                $NewHoldObj += $NewHold
+                                $IsHoldPresent = $true
+                            }
+                        }
+                    }
+                }
+
+                if(($IsHoldPresent -eq $true) -and ($countOfHold -eq 1))
+                {
+                    $HasHoldMigrationFailed = $false
+                    foreach($HoldInfo in $NewHoldObj)
+                    {
+                        $results = $HoldInfo.ExecuteHoldCommandlets($AdvCaseId)
+                
+                        foreach($result in $results)
+                        {
+                            if($result -eq "Completely Migrated")
+                            {
+                                if(($CoreCase.CaseMemberMigrated -eq "Failed" ) -or ($CoreCase.CaseMemberMigrated -eq "Partial"))
+                                {
+                                    $PartialMigratedHolds += 1
+                                    $CoreCase.MigrationStatus = "Partial"  
+                                    $CoreCase.Comment = $CoreCase.Comment + "Some case member not migrated. "
+                                }
+                                elseif(($CoreCase.CaseMemberMigrated -eq "Success" ) -or ($CoreCase.CaseMemberMigrated -eq "NA"))
+                                {
+                                    if($results[1] -match "Public folder location not supported.")
+                                        { 
+                                            $PartialMigratedHolds += 1
+                                            $CoreCase.MigrationStatus = "Partial"  
+                                        }
+                                       else 
+                                       {
+                                            $CompletelyMigratedHolds += 1
+                                            $CoreCase.MigrationStatus = "Complete" 
+                                       }
+                                }
+                            }
+                            elseif($result -eq "Not Migrated")
+                            {
+                                if(($results[1] -match "No hold policy present.") -or ($results[1] -match "Public folder location not supported."))
+                                {
+                                    if($CoreCase.CaseMemberMigrated -eq "Failed")
+                                    {
+                                        $CoreCase.Comment = $CoreCase.Comment + "No case member migrated. " 
+                                        $NotMigratedHolds += 1
+                                        $CoreCase.MigrationStatus = "Failed" 
+                                        try 
+                                        {
+                                            Remove-ComplianceCase -Identity "$($CoreCase.AdvCaseName)" -Confirm:$false
+                                            $CoreCase.Comment = $CoreCase.Comment + "Advance eDiscovery case removed as no hold policy or case member formed. " 
+                                            $CoreCase.AdvancedCaseId = "NA"
+                                            $CoreCase.AdvancedLinkURL = "NA"                                
+                                        }
+                                        catch {
+                            
+                                        }
+                                        
+                                    }
+                                    elseif($CoreCase.CaseMemberMigrated -eq "Success") {
+                                        if($results[1] -match "Public folder location not supported.")
+                                        { 
+                                            $PartialMigratedHolds += 1
+                                            $CoreCase.MigrationStatus = "Partial"  
+                                        }
+                                       else 
+                                       {
+                                            $CompletelyMigratedHolds += 1
+                                            $CoreCase.MigrationStatus = "Complete" 
+                                       }
+                                    }
+                                    elseif($CoreCase.CaseMemberMigrated -eq "Partial") {
+                                        $PartialMigratedHolds += 1
+                                        $CoreCase.MigrationStatus = "Partial"  
+                                        $CoreCase.Comment = $CoreCase.Comment + "Some case member not migrated. " 
+                                    }else {
+                                        $CoreCase.Comment = $CoreCase.Comment + "No case member present. " 
+                                        $NotMigratedHolds += 1
+                                        $CoreCase.MigrationStatus = "Failed" 
+                                        try 
+                                        {
+                                            Remove-ComplianceCase -Identity "$($CoreCase.AdvCaseName)" -Confirm:$false
+                                            $CoreCase.Comment = $CoreCase.Comment + "Advance eDiscovery case removed as no hold policy or case member present. " 
+                                            $CoreCase.AdvancedCaseId = "NA"
+                                            $CoreCase.AdvancedLinkURL = "NA"                                
+                                        }
+                                        catch {
+                            
+                                        }
+                                    }
+
+                                                                      
+                                }
+                                else {
+                                    $NotMigratedHolds += 1
+                                    $CoreCase.MigrationStatus = "Failed" 
+                                    $HasHoldMigrationFailed = $true
+                                    try 
+                                    {
+                                        Remove-ComplianceCase -Identity "$($CoreCase.AdvCaseName)" -Confirm:$false
+                                        $CoreCase.Comment = $CoreCase.Comment + "Advance eDiscovery case removed as no hold policy formed. " 
+                                        $CoreCase.AdvancedCaseId = "NA"
+                                        $CoreCase.AdvancedLinkURL = "NA"                                
+                                    }
+                                    catch {
+                            
+                                    }
+                                }                                
+                            }
+                            elseif($result -eq "Partially Migrated")
+                            {
+                                $PartialMigratedHolds += 1
+                                $CoreCase.MigrationStatus = "Partial" 
+                            }
+                            else
+                            { $CoreCase.Comment = $CoreCase.Comment + $result  }               
+                        }
+                    }
+                }
+                elseif ($countOfHold -gt 1)
+                {
+                    try 
+                    {
+                        $NotMigratedHolds += 1
+                        $CoreCase.MigrationStatus = "Failed"
+                        $CoreCase.Comment = "Not supported. More than one hold policy present. "
+                        Remove-ComplianceCase -Identity "$($CoreCase.AdvCaseName)" -Confirm:$false
+                        $CoreCase.AdvancedCaseId = "NA"
+                        $CoreCase.AdvancedLinkURL = "NA" 
+                    }
+                    catch {
+               
+                    }        
+                }
+                elseif ($countOfHold -eq 0) 
+                {
+                    try 
+                    {
+                        if(($CoreCase.CaseMemberMigrated -eq "Success" ) )
+                        {
+                            $CompletelyMigratedHolds += 1
+                            $CoreCase.MigrationStatus = "Complete"                           
+                        }
+                        elseif(($CoreCase.CaseMemberMigrated -eq "Failed" ) )                               
+                        {
+                            try 
+                            {
+                                $NotMigratedHolds += 1
+                                $CoreCase.MigrationStatus = "Failed"
+                                Remove-ComplianceCase -Identity "$($CoreCase.AdvCaseName)" -Confirm:$false
+                                $CoreCase.Comment = $CoreCase.Comment + "Advance eDiscovery case removed as no parameter is migrated. " 
+                                $CoreCase.AdvancedCaseId = "NA"
+                                $CoreCase.AdvancedLinkURL = "NA" 
+                            }
+                            catch {
+               
+                            }  
+                        }
+                        elseif(($CoreCase.CaseMemberMigrated -eq "Partial"))                               
+                        {
+                            $PartialMigratedHolds += 1
+                            $CoreCase.MigrationStatus = "Partial"
+                            $CoreCase.Comment = $CoreCase.Comment + "Some case member not migrated. " 
+                        }
+                        elseif( $CoreCase.CaseMemberMigrated -eq "NA")                               
+                        {
+                            try 
+                            {
+                                $NotMigratedHolds += 1
+                                $CoreCase.MigrationStatus = "Failed"
+                                Remove-ComplianceCase -Identity "$($CoreCase.AdvCaseName)" -Confirm:$false
+                                $CoreCase.Comment = $CoreCase.Comment + "Advance eDiscovery case removed as no parameter is present. " 
+                                $CoreCase.AdvancedCaseId = "NA"
+                                $CoreCase.AdvancedLinkURL = "NA" 
+                            }
+                            catch {
+               
+                            }        
+                            
+                        }
+                        #Remove-ComplianceCase -Identity "$($CoreCase.AdvCaseName)" -Confirm:$false
+                    }
+                    catch 
+                    {
+               
                     }
                 }
             }
-        }
-        if($IsHoldPresent -eq $true)
-        {
-            $HasHoldMigrationFailed = $false
-            foreach($HoldInfo in $NewHoldObj)
+            else
             {
-                $result = $HoldInfo.ExecuteHoldCommandlets($AdvCaseName)
-                if($result -eq $false)
+                $NotMigratedHolds += 1
+                $CoreCase.MigrationStatus = "Failed"
+                if($CoreCase.IsAlreadyPresent -eq $true)
                 {
-                    $HasHoldMigrationFailed = $true
+                    $CoreCase.Comment = $CoreCase.Comment + "The advance eDiscovey case is already present. "
                 }
             }
-            if($HasHoldMigrationFailed -eq $true)
-            {
-                $MigratedCases -= 1
-                $FailedCases += 1
-            }
         }
-        
     }
+
     $InfoMessage = "Migration Completed"
     Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
     
-    $MigratedCases = ($MigratedCases/$SelectedCases)*100
-    $FailedCases = ($FailedCases/$SelectedCases)*100
+    $CompletelyMigratedHolds = ($CompletelyMigratedHolds/$SelectedCases)*100
+    $PartialMigratedHolds = ($PartialMigratedHolds/$SelectedCases)*100
+    $NotMigratedHolds = ($NotMigratedHolds/$SelectedCases)*100
 
     [ReportStats]$ReportStatsObj = new-object -TypeName ReportStats
 
     $ReportStatsObj.DomainName = (Get-AcceptedDomains -LogFile $LogFile)
     $ReportStatsObj.OrgName = (Get-OrganisationName -LogFile $LogFile)
     $ReportStatsObj.SelectedCases = $SelectedCases
-    $ReportStatsObj.MigratedCases = $MigratedCases
-    $ReportStatsObj.FailedCases = $FailedCases
-    $ReportStatsObj.ElapsedMilliseconds =  $($(Get-Date).Millisecond) - $global:StartTime
+    $ReportStatsObj.MigratedCases = $CompletelyMigratedHolds
+    $ReportStatsObj.FailedCases = $NotMigratedHolds
+    $ReportStatsObj.PartiallyMigratedCases= $PartialMigratedHolds
+    $ReportStatsObj.ElapsedSeconds =  $($(Get-Date).TotalSeconds) - $global:StartTime
 
     try
     { 
@@ -541,7 +738,7 @@ Function Absent-CaseStats {
     $ReportStatsObj.SelectedCases = 0
     $ReportStatsObj.MigratedCases = 0
     $ReportStatsObj.FailedCases = 0
-    $ReportStatsObj.ElapsedMilliseconds =  $($(Get-Date).Millisecond) - $global:StartTime
+    $ReportStatsObj.ElapsedSeconds =  $($(Get-Date).TotalSeconds) - $global:StartTime
     return
 }
 

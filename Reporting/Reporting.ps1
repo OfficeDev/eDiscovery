@@ -2,9 +2,7 @@
 . "$($(get-item $PSCommandPath).Directory.parent.FullName)\Logging\Log.ps1"
 function Get-AppDirectory {
     <#
-
-        Gets or creates the PMT directory in AppData
-        
+        Gets or creates the PMT directory in AppData        
     #>
     If ($IsWindows) {
         $Directory = "$($env:LOCALAPPDATA)\$global:AppDirectory"
@@ -102,10 +100,17 @@ $objects | Export-Csv -ErrorAction Stop -path $temporaryCsvFile -noTypeInformati
             $row++
             $column=2
             
-            $ReportSheet.Cells.Item($row,$column) = "Migrated Cases"
+            $ReportSheet.Cells.Item($row,$column) = "Completely Migrated Cases"
             $column++
             
             $ReportSheet.Cells.Item($row,$column) =($ReportObj.MigratedCases/100)*$ReportObj.SelectedCases
+            $row++
+            $column=2
+
+            $ReportSheet.Cells.Item($row,$column) = "Partially Migrated Cases"
+            $column++
+            
+            $ReportSheet.Cells.Item($row,$column) =($ReportObj.PartiallyMigratedCases/100)*$ReportObj.SelectedCases
             $row++
             $column=2
             
@@ -116,10 +121,10 @@ $objects | Export-Csv -ErrorAction Stop -path $temporaryCsvFile -noTypeInformati
             $row++
             $column=2
             
-            $ReportSheet.Cells.Item($row,$column) = "Session Duration(in ms)"
+            $ReportSheet.Cells.Item($row,$column) = "Session Duration(in sec)"
             $column++
             
-            $ReportSheet.Cells.Item($row,$column) = $ReportObj.ElapsedMilliseconds
+            $ReportSheet.Cells.Item($row,$column) = $ReportObj.ElapsedSeconds
             $row++
             $column=2
             
@@ -155,6 +160,10 @@ $objects | Export-Csv -ErrorAction Stop -path $temporaryCsvFile -noTypeInformati
             $ReportSheet.Cells.Item($row,$column).Font.Bold=$True
             $column++
             
+            $ReportSheet.Cells.Item($row,$column) = "Comment"
+            $ReportSheet.Cells.Item($row,$column).Font.Bold=$True
+            $column++
+
             $row++
             $column=1
             
@@ -170,16 +179,18 @@ $objects | Export-Csv -ErrorAction Stop -path $temporaryCsvFile -noTypeInformati
                         $ReportSheet.Cells.Item($row,$column) = "Core Case Id:" + $CoreCase.CaseId +  "`n"  +"Advanced Case Id:" + $CoreCase.AdvancedCaseId
                         $column++
             
-                        $ReportSheet.Cells.Item($row,$column) = $CoreCase.IsMigrated
+                        $ReportSheet.Cells.Item($row,$column) = $CoreCase.MigrationStatus
                         $column++
             
                         $ReportSheet.Cells.Item($row,$column) = "View Case"
+                        $CoreCase.LinkURL = $CoreCase.LinkURL.Replace("https://compliance.microsoft.com","")
+                           
                         $ReportSheet.Hyperlinks.Add(
                             $ReportSheet.Cells.Item($row,$column),
-                            "",
+                            "https://compliance.microsoft.com",
                             $CoreCase.LinkURL,
                             "View Core eDiscovery Case at M365 Compliance Center",
-                            $ReportSheet.Cells.Item($row,$column).Text
+                            "View Case"
                             ) | Out-Null
                         $column++
                         if( $CoreCase.AdvancedLinkURL -eq "NA")
@@ -187,14 +198,22 @@ $objects | Export-Csv -ErrorAction Stop -path $temporaryCsvFile -noTypeInformati
                         else
                         {
                             $ReportSheet.Cells.Item($row,$column) ="View Case"
-                         $ReportSheet.Hyperlinks.Add(
+                            $CoreCase.AdvancedLinkURL = $CoreCase.AdvancedLinkURL.Replace("https://compliance.microsoft.com","")
+                            $ReportSheet.Hyperlinks.Add(
                             $ReportSheet.Cells.Item($row,$column),
-                            "",
+                            "https://compliance.microsoft.com",
                             $CoreCase.AdvancedLinkURL,
                             "View Advanced eDiscovery Case at M365 Compliance Center",
-                            $ReportSheet.Cells.Item($row,$column).Text
+                            "View Case"
                             ) | Out-Null
                         }
+                        $column++
+                            if($CoreCase.Comment -eq "")
+                            {
+                                $CoreCase.Comment = "NA"
+                            }
+                        $ReportSheet.Cells.Item($row,$column) = $CoreCase.Comment
+
                         $row++
                         $column=1
                         $count++
