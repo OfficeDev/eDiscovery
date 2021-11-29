@@ -63,7 +63,7 @@ $objects | Export-Csv -ErrorAction Stop -path $temporaryCsvFile -noTypeInformati
             
             $workbook = $excel.Workbooks.Open($temporaryCsvFile)
             $ReportSheet = $workbook.Worksheets.Item(1)
-            $ReportSheet.Name = 'eDiscovey Report'
+            $ReportSheet.Name = 'eDiscovery Report'
             
             $row=1;
             $column=1
@@ -103,21 +103,21 @@ $objects | Export-Csv -ErrorAction Stop -path $temporaryCsvFile -noTypeInformati
             $ReportSheet.Cells.Item($row,$column) = "Completely Migrated Cases"
             $column++
             
-            $ReportSheet.Cells.Item($row,$column) =($ReportObj.MigratedCases/100)*$ReportObj.SelectedCases
+            $ReportSheet.Cells.Item($row,$column) =$ReportObj.MigratedCases
             $row++
             $column=2
 
             $ReportSheet.Cells.Item($row,$column) = "Partially Migrated Cases"
             $column++
             
-            $ReportSheet.Cells.Item($row,$column) =($ReportObj.PartiallyMigratedCases/100)*$ReportObj.SelectedCases
+            $ReportSheet.Cells.Item($row,$column) =$ReportObj.PartiallyMigratedCases
             $row++
             $column=2
             
             $ReportSheet.Cells.Item($row,$column) = "Failed Cases"
             $column++
             
-            $ReportSheet.Cells.Item($row,$column) = ($ReportObj.FailedCases/100)*$ReportObj.SelectedCases
+            $ReportSheet.Cells.Item($row,$column) = $ReportObj.FailedCases
             $row++
             $column=2
             

@@ -192,6 +192,7 @@ function Start-Migration {
     }
     try {
         Disconnect-ExchangeOnline -Confirm:$false -ErrorAction:SilentlyContinue
+        Disconnect-MgGraph -Confirm:$false -ErrorAction:SilentlyContinue
     }
     catch {
         
@@ -232,15 +233,14 @@ function Invoke-eDiscoveryShift {
     $CoreCasesArray = Get-eDiscoveryCoreCases -LogFile $LogFile
 
 
-    Create-eDiscoveryCases -CoreCasesArray $CoreCasesArray -LogFile $LogFile
-    
+    $ReportStatsObj = Create-eDiscoveryCases -CoreCasesArray $CoreCasesArray -LogFile $LogFile  
 
     #If Telemetry is enabled (For Customers), then collect telemetry
-    <#$OutputDirectoryName = Get-AppDirectory;
+    $OutputDirectoryName = Get-AppDirectory;
     if ((Test-Path -Path "$OutputDirectoryName\UserConsent.txt" -PathType Leaf) -and ($(Get-Content "$OutputDirectoryName\UserConsent.txt") -ieq "Yes")) {
         
-        Send-Telemetry -LogFile $LogFile -DataCollectionParameter $Parameters 
-    }#>
+        Send-Telemetry -LogFile $LogFile -DataCollectionParameter $ReportStatsObj 
+    }
 }
 
 function Invoke-eDiscoveryConnections {
@@ -696,10 +696,6 @@ function Create-eDiscoveryCases {
 
     $InfoMessage = "Migration Completed"
     Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
-    
-    $CompletelyMigratedHolds = ($CompletelyMigratedHolds/$SelectedCases)*100
-    $PartialMigratedHolds = ($PartialMigratedHolds/$SelectedCases)*100
-    $NotMigratedHolds = ($NotMigratedHolds/$SelectedCases)*100
 
     [ReportStats]$ReportStatsObj = new-object -TypeName ReportStats
 
@@ -720,6 +716,7 @@ function Create-eDiscoveryCases {
         $ErrorMessage = $_.ToString()
         Write-host $ErrorMessage
     }
+    return $ReportStatsObj
 }
 
 Function Absent-CaseStats {

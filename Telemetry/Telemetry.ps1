@@ -22,17 +22,11 @@ function Send-Telemetry {
     try {
             
         # URI and Function Key to trigger the Azure Function 
-        $URI = "Put Azure function based Telemetry URL here"
-        $FunctionKey = "Put Function key here"
+        $URI = "https://ediscshifttelemetryapp.azurewebsites.net/api/eDiscShiftTelemetryFunction"
 
         try {
-            # Set the header for the URI
-            $Headers = @{
-                'x-functions-key' = $FunctionKey
-            }
-
             # Call the URI
-            $ResponseMessage = Invoke-WebRequest -Uri $URI -Headers $Headers -ContentType "application/json" -Method POST -Body $DataCollectionParameter -ErrorAction:SilentlyContinue                   
+            $ResponseMessage = Invoke-WebRequest -Uri $URI -ContentType "application/json" -Method POST -Body $DataCollectionParameter -ErrorAction:SilentlyContinue                   
             Write-Log -IsInfo -InfoMessage $ResponseMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
             Write-Host "$(Get-Date) $ResponseMessage" -ForegroundColor Yellow                
         }
