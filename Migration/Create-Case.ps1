@@ -79,6 +79,8 @@ class Case : CoreCase {
                 $AdvancedCaseExisting = Get-ComplianceCase -Identity "$($this.AdvCaseName)" -CaseType AdvancedEdiscovery 
                 if($AdvancedCaseExisting.Identity -ne "" -and $null -ne $AdvancedCaseExisting.Identity)
                 {
+                    $this.AdvancedCaseId = $AdvancedCaseExisting.Identity
+                    $this.AdvancedLinkURL = "https://compliance.microsoft.com/advancedediscovery/cases/v2/$($this.AdvancedCaseId)?casename=$($this.AdvCaseName)&casesworkbench=Overview"
                     $this.IsAlreadyPresent = $true
                 }
                 return $false
@@ -87,10 +89,6 @@ class Case : CoreCase {
         catch {
             Write-Host "Error:$(Get-Date) There was an issue in creating Advance eDiscovery Case. Please try running the tool again after some time." -ForegroundColor:Red
             $ErrorMessage = $_.ToString()
-            if($ErrorMessage -contains "already exists")
-            {
-                $this.IsAlreadyPresent = $true
-            }
             $StackTraceInfo = $_.ScriptStackTrace
             Write-Log -IsError -ErrorMessage $ErrorMessage -StackTraceInfo $StackTraceInfo -LogFile $this.LogFile -ErrorAction:SilentlyContinue      
             return $false

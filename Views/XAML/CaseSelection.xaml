@@ -68,7 +68,7 @@
                 Foreground="White"
                 FontSize="25"></Label>
         </Border>
-        <Label Grid.Row="1" Content="Core eDiscovery case selection" FontSize="35" HorizontalAlignment="Left"></Label>
+        <Label Grid.Row="1" Content="Core eDiscovery Case Selection" FontSize="35" HorizontalAlignment="Left"></Label>
 
         <DataGrid Grid.Row="2" Name="CasesDataGrid" 
             AutoGenerateColumns="False"
@@ -97,18 +97,18 @@
                     FontWeight="Normal"
                     Binding="{Binding CaseId}"/>
                 <DataGridTextColumn
-                    Width="350"
+                    Width="220"
                     IsReadOnly="True"
                     Header="Description"
                     HeaderStyle="{StaticResource WrappedColumnHeaderStyle}"
                     FontWeight="Normal"
                     Binding="{Binding Description}"/>
                 <DataGridTextColumn
-                    Width="70"
-                    IsReadOnly="True"
+                    Width="200"
                     Header="Link"
-                    HeaderStyle="{StaticResource WrappedColumnHeaderStyle}"
                     FontWeight="Normal"
+                    IsReadOnly="False"
+                    HeaderStyle="{StaticResource WrappedColumnHeaderStyle}"
                     Binding="{Binding LinkURL}"/>
             </DataGrid.Columns>
             

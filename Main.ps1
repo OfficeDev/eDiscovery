@@ -572,7 +572,7 @@ function Create-eDiscoveryCases {
                                     }else {
                                         $CoreCase.Comment = $CoreCase.Comment + "No case member present. " 
                                         $NotMigratedHolds += 1
-                                        $CoreCase.MigrationStatus = "Failed" 
+                                        $CoreCase.MigrationStatus = "Skipped"
                                         try 
                                         {
                                             Remove-ComplianceCase -Identity "$($CoreCase.AdvCaseName)" -Confirm:$false
@@ -663,7 +663,7 @@ function Create-eDiscoveryCases {
                             try 
                             {
                                 $NotMigratedHolds += 1
-                                $CoreCase.MigrationStatus = "Failed"
+                                $CoreCase.MigrationStatus ="Skipped"
                                 Remove-ComplianceCase -Identity "$($CoreCase.AdvCaseName)" -Confirm:$false
                                 $CoreCase.Comment = $CoreCase.Comment + "Advance eDiscovery case removed as no parameter is present. " 
                                 $CoreCase.AdvancedCaseId = "NA"
@@ -688,6 +688,7 @@ function Create-eDiscoveryCases {
                 $CoreCase.MigrationStatus = "Failed"
                 if($CoreCase.IsAlreadyPresent -eq $true)
                 {
+                    $CoreCase.MigrationStatus = "Skipped"
                     $CoreCase.Comment = $CoreCase.Comment + "The advance eDiscovey case is already present. "
                 }
             }
