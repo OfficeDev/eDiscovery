@@ -491,8 +491,6 @@ function Create-eDiscoveryCases {
         }
     }
 
-    $global:StartTime = $(Get-Date)
-
     if($IsCoreCasesPresent -eq $false)
     {
         Absent-CaseStats -LogFile $LogFile
@@ -595,8 +593,27 @@ function Create-eDiscoveryCases {
                             }
                             elseif($result -eq "Not Migrated")
                             {
-                                if(($results[1] -match "No hold policy present.") -or ($results[1] -match "Public folder location not supported."))
+                               # if(($results[1] -match "No hold policy present.") -or (($results[1] -match "Public folder location not supported.") -and (-not ($results[1] -match "No hold policy migrated."))))
+                                if(($results[1] -match "No hold policy present.") -or ($results[1] -match "Public folder location not supported."))                         
                                 {
+                                    if( ($results[1] -match "No hold policy migrated."))
+                                    {
+                                        $NotMigratedHolds += 1
+                                        $CoreCase.MigrationStatus = "Skipped"
+                                        try 
+                                        {
+                                            Remove-ComplianceCase -Identity "$($CoreCase.AdvCaseName)" -Confirm:$false                               
+                                            $CoreCase.Comment = $CoreCase.Comment + "Advance eDiscovery case removed as no hold policy migrated. " 
+                                            $CoreCase.AdvancedCaseId = "NA"
+                                            $CoreCase.AdvancedLinkURL = "NA"     
+                                            Set-ComplianceCase -Identity $($CoreCase.CaseName) -Description $($CoreCase.CoreDescription)                                                                  
+                                        }
+                                        catch {
+                            
+                                        }
+                                    }
+                                    else
+                                    {
                                     if($CoreCase.CaseMemberMigrated -eq "Failed")
                                     {
                                         $CoreCase.Comment = $CoreCase.Comment + "No case member migrated. " 
@@ -604,15 +621,15 @@ function Create-eDiscoveryCases {
                                         $CoreCase.MigrationStatus = "Skipped" 
                                         try 
                                         {
-                                            Remove-ComplianceCase -Identity "$($CoreCase.AdvCaseName)" -Confirm:$false
+                                            Remove-ComplianceCase -Identity "$($CoreCase.AdvCaseName)" -Confirm:$false                                           
                                             $CoreCase.Comment = $CoreCase.Comment + "Advance eDiscovery case removed as no hold policy or case member formed. " 
                                             $CoreCase.AdvancedCaseId = "NA"
-                                            $CoreCase.AdvancedLinkURL = "NA"                                
+                                            $CoreCase.AdvancedLinkURL = "NA" 
+                                            Set-ComplianceCase -Identity $($CoreCase.CaseName) -Description $($CoreCase.CoreDescription)                                                                      
                                         }
                                         catch {
                             
-                                        }
-                                        
+                                        }                                        
                                     }
                                     elseif($CoreCase.CaseMemberMigrated -eq "Success") {
                                         if($results[1] -match "Public folder location not supported.")
@@ -639,12 +656,14 @@ function Create-eDiscoveryCases {
                                             Remove-ComplianceCase -Identity "$($CoreCase.AdvCaseName)" -Confirm:$false
                                             $CoreCase.Comment = $CoreCase.Comment + "Advance eDiscovery case removed as no hold policy or case member present. " 
                                             $CoreCase.AdvancedCaseId = "NA"
-                                            $CoreCase.AdvancedLinkURL = "NA"                                
+                                            $CoreCase.AdvancedLinkURL = "NA"  
+                                            Set-ComplianceCase -Identity $($CoreCase.CaseName) -Description $($CoreCase.CoreDescription)                                                                                                             
                                         }
                                         catch {
                             
                                         }
                                     }
+                                }
 
                                                                       
                                 }
@@ -654,10 +673,11 @@ function Create-eDiscoveryCases {
                                     $HasHoldMigrationFailed = $true
                                     try 
                                     {
-                                        Remove-ComplianceCase -Identity "$($CoreCase.AdvCaseName)" -Confirm:$false
+                                        Remove-ComplianceCase -Identity "$($CoreCase.AdvCaseName)" -Confirm:$false                 
                                         $CoreCase.Comment = $CoreCase.Comment + "Advance eDiscovery case removed as no hold policy formed. " 
                                         $CoreCase.AdvancedCaseId = "NA"
-                                        $CoreCase.AdvancedLinkURL = "NA"                                
+                                        $CoreCase.AdvancedLinkURL = "NA"  
+                                        Set-ComplianceCase -Identity $($CoreCase.CaseName) -Description $($CoreCase.CoreDescription)                                                                    
                                     }
                                     catch {
                             
@@ -681,9 +701,10 @@ function Create-eDiscoveryCases {
                         $NotMigratedHolds += 1
                         $CoreCase.MigrationStatus = "Skipped"
                         $CoreCase.Comment = "Not supported. More than one hold policy present. "
-                        Remove-ComplianceCase -Identity "$($CoreCase.AdvCaseName)" -Confirm:$false
+                        Remove-ComplianceCase -Identity "$($CoreCase.AdvCaseName)" -Confirm:$false                      
                         $CoreCase.AdvancedCaseId = "NA"
                         $CoreCase.AdvancedLinkURL = "NA" 
+                        Set-ComplianceCase -Identity $($CoreCase.CaseName) -Description $($CoreCase.CoreDescription)                                       
                     }
                     catch {
                
@@ -707,7 +728,8 @@ function Create-eDiscoveryCases {
                                 Remove-ComplianceCase -Identity "$($CoreCase.AdvCaseName)" -Confirm:$false
                                 $CoreCase.Comment = $CoreCase.Comment + "Advance eDiscovery case removed as no parameter is migrated. " 
                                 $CoreCase.AdvancedCaseId = "NA"
-                                $CoreCase.AdvancedLinkURL = "NA" 
+                                $CoreCase.AdvancedLinkURL = "NA"
+                                Set-ComplianceCase -Identity $($CoreCase.CaseName) -Description $($CoreCase.CoreDescription)                                        
                             }
                             catch {
                
@@ -729,6 +751,7 @@ function Create-eDiscoveryCases {
                                 $CoreCase.Comment = $CoreCase.Comment + "Advance eDiscovery case removed as no parameter is present. " 
                                 $CoreCase.AdvancedCaseId = "NA"
                                 $CoreCase.AdvancedLinkURL = "NA" 
+                                Set-ComplianceCase -Identity $($CoreCase.CaseName) -Description $($CoreCase.CoreDescription)                                       
                             }
                             catch {
                
