@@ -5,7 +5,7 @@
 . .\Reporting\Reporting.ps1
 
 # Global Variables: 
-[int] $global:StartTime
+[DateTime] $global:StartTime = $(Get-Date)
 # Has Error ocurred
 [bool] $global:ErrorOccurred = $false
 # Has window closed with title bar
@@ -249,6 +249,67 @@ function Invoke-eDiscoveryConnections {
         [String]$LogFile
     )
 
+    try
+    {
+        $InfoMessage = "Checking for Exchange Online Management module..."
+        Write-Host "$(Get-Date) $InfoMessage"
+        Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
+        $ExchangeVersion = (Get-InstalledModule -name "ExchangeOnlineManagement" -ErrorAction:SilentlyContinue | Sort-Object Version -Desc)[0].Version
+    }
+    catch
+    {
+        $ExchangeVersion = "Error"
+        $InfoMessage = "Exchange Online Management module is not installed. Installing.."
+        Write-Host "$(Get-Date) $InfoMessage"
+        Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
+        try
+        {
+            Install-Module -Name "ExchangeOnlineManagement" -force -Scope CurrentUser 
+        }
+        catch
+        {
+            $InfoMessage = "Issue faced while installing Exchange Online Management module."
+            Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
+        }
+    }
+
+    if ($ExchangeVersion -eq "Error") 
+    {
+        $ExchangeVersion = (Get-InstalledModule -name "ExchangeOnlineManagement" -ErrorAction:SilentlyContinue | Sort-Object Version -Desc)[0].Version
+    }
+    if ("$ExchangeVersion" -lt "2.0.3") 
+    {
+        $InfoMessage = "Your Exchange Online Management module is not updated. Updating.."
+        Write-Host "$(Get-Date) $InfoMessage"
+        Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
+        Install-Module -Name "ExchangeOnlineManagement -Scope CurrentUser -RequiredVersion 2.0.3" 
+    }
+
+    try
+    {
+        $InfoMessage = "Checking for Microsoft Graph (Compliance) module..."
+        Write-Host "$(Get-Date) $InfoMessage"
+        Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
+        $GraphModule = Get-InstalledModule Microsoft.Graph.Compliance
+    }
+    catch
+    {
+        $ExchangeVersion = "Error"
+        $InfoMessage = "Microsoft Graph (Compliance) module is not installed. Installing.."
+        Write-Host "$(Get-Date) $InfoMessage"
+        Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
+        try
+        {
+            Install-Module -Name "Microsoft.graph.compliance" -force 
+        }
+        catch
+        {
+            $InfoMessage = "Issue faced while installing Microsoft Graph (Compliance) module."
+            Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
+        }
+    }
+        
+
     try {
         $userName = Read-Host -Prompt 'Input the user name' -ErrorAction:SilentlyContinue
         $InfoMessage = "Connecting to Security & Compliance Center"
@@ -430,7 +491,7 @@ function Create-eDiscoveryCases {
         }
     }
 
-    $global:StartTime = $($(Get-Date).TotalSeconds)
+    $global:StartTime = $(Get-Date)
 
     if($IsCoreCasesPresent -eq $false)
     {
@@ -540,7 +601,7 @@ function Create-eDiscoveryCases {
                                     {
                                         $CoreCase.Comment = $CoreCase.Comment + "No case member migrated. " 
                                         $NotMigratedHolds += 1
-                                        $CoreCase.MigrationStatus = "Failed" 
+                                        $CoreCase.MigrationStatus = "Skipped" 
                                         try 
                                         {
                                             Remove-ComplianceCase -Identity "$($CoreCase.AdvCaseName)" -Confirm:$false
@@ -589,7 +650,7 @@ function Create-eDiscoveryCases {
                                 }
                                 else {
                                     $NotMigratedHolds += 1
-                                    $CoreCase.MigrationStatus = "Failed" 
+                                    $CoreCase.MigrationStatus = "Skipped" 
                                     $HasHoldMigrationFailed = $true
                                     try 
                                     {
@@ -618,7 +679,7 @@ function Create-eDiscoveryCases {
                     try 
                     {
                         $NotMigratedHolds += 1
-                        $CoreCase.MigrationStatus = "Failed"
+                        $CoreCase.MigrationStatus = "Skipped"
                         $CoreCase.Comment = "Not supported. More than one hold policy present. "
                         Remove-ComplianceCase -Identity "$($CoreCase.AdvCaseName)" -Confirm:$false
                         $CoreCase.AdvancedCaseId = "NA"
@@ -642,7 +703,7 @@ function Create-eDiscoveryCases {
                             try 
                             {
                                 $NotMigratedHolds += 1
-                                $CoreCase.MigrationStatus = "Failed"
+                                $CoreCase.MigrationStatus = "Skipped"
                                 Remove-ComplianceCase -Identity "$($CoreCase.AdvCaseName)" -Confirm:$false
                                 $CoreCase.Comment = $CoreCase.Comment + "Advance eDiscovery case removed as no parameter is migrated. " 
                                 $CoreCase.AdvancedCaseId = "NA"
@@ -685,7 +746,7 @@ function Create-eDiscoveryCases {
             else
             {
                 $NotMigratedHolds += 1
-                $CoreCase.MigrationStatus = "Failed"
+                $CoreCase.MigrationStatus = "Skipped"
                 if($CoreCase.IsAlreadyPresent -eq $true)
                 {
                     $CoreCase.MigrationStatus = "Skipped"
@@ -706,7 +767,7 @@ function Create-eDiscoveryCases {
     $ReportStatsObj.MigratedCases = $CompletelyMigratedHolds
     $ReportStatsObj.FailedCases = $NotMigratedHolds
     $ReportStatsObj.PartiallyMigratedCases= $PartialMigratedHolds
-    $ReportStatsObj.ElapsedSeconds =  $($(Get-Date).TotalSeconds) - $global:StartTime
+    $ReportStatsObj.ElapsedSeconds =  ($(Get-Date)- $global:StartTime).TotalSeconds
 
     try
     { 
@@ -736,7 +797,7 @@ Function Absent-CaseStats {
     $ReportStatsObj.SelectedCases = 0
     $ReportStatsObj.MigratedCases = 0
     $ReportStatsObj.FailedCases = 0
-    $ReportStatsObj.ElapsedSeconds =  $($(Get-Date).TotalSeconds) - $global:StartTime
+    $ReportStatsObj.ElapsedSeconds = ($(Get-Date)- $global:StartTime).TotalSeconds
     return
 }
 
