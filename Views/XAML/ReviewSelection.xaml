@@ -96,23 +96,23 @@
                     FontWeight="Normal"
                     Binding="{Binding CaseId}"/>
                 <DataGridTextColumn
-                    Width="220"
+                    Width="210"
                     IsReadOnly="True"
                     Header="Description"
                     HeaderStyle="{StaticResource WrappedColumnHeaderStyle}"
                     FontWeight="Normal"
                     Binding="{Binding Description}"/>
                 <DataGridTextColumn
-                    Width="210"
+                    Width="205"
                     IsReadOnly="False"
                     Header="Link"
                     FontWeight="Normal"
                     HeaderStyle="{StaticResource WrappedColumnHeaderStyle}"
                     Binding="{Binding LinkURL}"/>
             <DataGridCheckBoxColumn 
-                    Width="45" 
+                    Width="60" 
                     Binding="{Binding IsDeletionEnabled, UpdateSourceTrigger=PropertyChanged}" 
-                    Header="Delete" 
+                    Header="Remove" 
                     HeaderStyle="{StaticResource WrappedColumnHeaderStyle}"/>
             </DataGrid.Columns>
             

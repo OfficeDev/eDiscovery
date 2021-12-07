@@ -9,6 +9,7 @@ class Case : CoreCase {
     [string] $CaseMember = "NA"
     [string] $AdvCaseName = "NA"
     [string] $Comment = ""
+    [string] $CoreDescription = ""
     [string] $MigrationStatus = ""
     [bool]$IsAlreadyPresent = $false
     [string]$CaseMemberMigrated = "NA"
@@ -27,7 +28,8 @@ class Case : CoreCase {
         
         $this.CaseMember = Get-compliancecasemember -Case "$($this.CaseName)"
         $this.AdvCaseName = $this.CaseName + "Migrated" 
-        $this.Description += " This was migrated from Core eDiscovery case ID: $($this.CaseId) on date: $(Get-Date -Format 'ddMMyy')." 
+        $this.CoreDescription = $this.Description 
+        $this.Description +=  "`n"+" This was migrated from Core eDiscovery case ID: $($this.CaseId) on date: $(Get-Date -Format 'ddMMyy')." 
 
         $InfoMessage = "Creating Advance eDiscovery Case"
         Write-Host "$(Get-Date) $InfoMessage"
@@ -72,6 +74,14 @@ class Case : CoreCase {
                     }
                 }
                 $this.IsMigrated= $true
+                try
+                {
+                    $this.CoreDescription += "`n"+"This was migrated to Advanced eDiscovery case ID: $($this.AdvancedCaseId) on date: $(Get-Date -Format 'ddMMyy')." 
+                    Set-ComplianceCase -Identity  $this.CaseName -Description $this.CoreDescription 
+                }
+                catch
+                {}
+
                 return $true
             }
             else 
@@ -83,6 +93,7 @@ class Case : CoreCase {
                     $this.AdvancedLinkURL = "https://compliance.microsoft.com/advancedediscovery/cases/v2/$($this.AdvancedCaseId)?casename=$($this.AdvCaseName)&casesworkbench=Overview"
                     $this.IsAlreadyPresent = $true
                 }
+
                 return $false
             }            
         }
