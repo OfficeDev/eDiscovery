@@ -39,8 +39,9 @@ If you don't have an existing Microsoft 365 E5 plan and want to try Advanced eDi
 
 #### 2. Roles & user permissions
 You must have appropriate role/user permissions to be able to run this tool. 
-- Global Administration and eDiscovery Administrator roles assigned to single user
-- eDiscovery Administrator role with consent for super user elevation provided by Global Admin. [Setup guidance here]()
+- Global Administration
+- eDiscovery Administrator role group 
+
 
 #### 3. PowerShell 
 - You must have PowerShell version 5.1 or above to run this tool.
@@ -56,7 +57,7 @@ You must have appropriate role/user permissions to be able to run this tool.
 
 ### Installation
 
-- Step 0: [Download]() & extract zip file from this repository.
+- Step 0: [Download](https://github.com/OfficeDev/eDiscovery/archive/refs/heads/main.zip) & extract zip file from this repository.
 - Step 1: Open PowerShell in administrator mode.
 - Step 2: Navigate to the location from *Step 0* where you have downloaded the files.
     ```powershell 
