@@ -17,9 +17,9 @@ The eDiscovery Shift tool provides you with:
 
 ### How does eDiscovery Shift work?
 
-1. Creates new Advanced eDiscovery case.
+1. Creates a new Advanced eDiscovery case.
 2. Migrates core eDiscovery case details, holds & searches.
-3. Generate migration status report including success & failure.
+3. Generate migration status report including any failures.
 4. Release the holds from old cases (Coming Soon)
 5. Delete old Core eDiscovery cases (Coming Soon)
 
