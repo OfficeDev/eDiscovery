@@ -51,7 +51,7 @@ You must have appropriate role/user permissions to be able to run this tool.
         ```
     - Exchange Online PowerShell module (http://aka.ms/exopsmodule)
 
-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 ## Migration Instructions
 
 ### Installation
@@ -68,7 +68,7 @@ You must have appropriate role/user permissions to be able to run this tool.
     ```
  You are now ready to start migrating your Core eDiscovery cases to Advanced eDiscovery!
 
-## Migrate your cases
+### Migrate cases
 
 1. Run the following cmdlet in your PowerShell window to launch the application.
 ```powershell
