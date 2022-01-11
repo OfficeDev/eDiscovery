@@ -8,9 +8,9 @@
         Title="eDiscovery Shift" Height="450" Width="800">
     <Window.Resources>
         <!-- This style is used for buttons, to remove the WPF default 'animated' mouse over effect -->
-<BitmapImage x:Key='MyImageSource1' UriSource='C:\Users\spriti\source\repos\eDiscovery-1\Images\Icon1.png'/>
-<BitmapImage x:Key='MyImageSource2' UriSource='C:\Users\spriti\source\repos\eDiscovery-1\Images\Icon2.png'/>
-<BitmapImage x:Key='MyImageSource3' UriSource='C:\Users\spriti\source\repos\eDiscovery-1\Images\Icon3.png'/>
+<BitmapImage x:Key='MyImageSource1' UriSource='C:\Users\spriti\source\repos\eDiscovery-2\Images\Icon1.png'/>
+<BitmapImage x:Key='MyImageSource2' UriSource='C:\Users\spriti\source\repos\eDiscovery-2\Images\Icon2.png'/>
+<BitmapImage x:Key='MyImageSource3' UriSource='C:\Users\spriti\source\repos\eDiscovery-2\Images\Icon3.png'/>
         <Style x:Key="MyButtonStyle" TargetType="Button">
             <Setter Property="OverridesDefaultStyle" Value="True"/>
             <Setter Property="Margin" Value="5"/>

@@ -2,34 +2,34 @@
 Core eDiscovery (E3) to Advanced eDiscovery (E5) Migration Tool
 
 ## Overview
-Today, customers have no direct way to migrate their eDiscovery cases easily from [Core eDiscovery (E3)](https://docs.microsoft.com/en-us/microsoft-365/compliance/get-started-core-ediscovery?view=o365-worldwide) to [Advanced eDiscovery (E5)](https://docs.microsoft.com/en-us/microsoft-365/compliance/overview-ediscovery-20?view=o365-worldwide#subscriptions-and-licensing). 
+Today, customers have no direct pathway to migrate their eDiscovery cases from [Core eDiscovery (E3)](https://docs.microsoft.com/en-us/microsoft-365/compliance/get-started-core-ediscovery?view=o365-worldwide) to [Advanced eDiscovery (E5)](https://docs.microsoft.com/en-us/microsoft-365/compliance/overview-ediscovery-20?view=o365-worldwide#subscriptions-and-licensing). 
 
-eDiscovery Shift will mitigate the above customer pain points by providing customers with an automated solution to migrate their Core eDiscovery cases to Advanced eDiscovery with minimal friction.
+The eDiscovery Shift tool will mitigate the overhead of a manual case migration by providing customers with an automated migration solution. After migrating existing core eDiscovery (CED) cases into Advanced eDiscovery (AED), customers are able to take advantage of the additional features available in the advanced solution. 
 
-## Migration tasks that eDiscovery Shift performs
-Today, upgrading from Microsoft's Core eDiscovery solution to Advanced eDiscovery solution requires multiple manual interventions as all past & ongoing Core eDiscovery cases don’t automatically show up in Advanced eDiscovery. 
+## Objective
+At the current time, historical and ongoing eDiscovery cases created in the Core eDiscovery solution are not automatically available in the Advanced eDiscovery solution. The process required to upgrade cases from the Microsoft 365 Core eDiscovery solution into the Advanced eDiscovery solution requires multiple manual interventions. 
 
-With eDiscovery Shift, they get:
-- <b>Automation:</b> Create Advanced eDiscovery cases from Core eDiscovery cases automatically with minimal manual interventions & massive time savings.
-- <b>No longer manage multiple solutions simultaneously:</b> Users can migrate all ongoing cases in both CeD to AeD directly and don't need to use both simultaneously.
-- <b>GUI-based tool:</b> Easily use tool GUI to migrate the cases without needing technical expertise with PowerShell scripts and/or Microsoft’s Graph API.
+The eDiscovery Shift tool provides you with:
+- <b>Automation:</b> Case settings, hold policies and searches are copied from the core eDiscovery case into a newly created Advanced eDiscovery case. 
+- <b>Minimize case management overhead:</b> eDiscovery Administrators are now able to migrate all ongoing cases from CeD into AeD directly, minimizing overhead of managing multiple eDiscovery solutions. 
+- <b>GUI-based tool:</b> Easily use tool GUI to migrate the cases without requirement for technical expertise with PowerShell scripts and/or Microsoft’s Graph API.
 
 
-## How does eDiscovery Shift work?
-At a high-level, the tool will do the following:
-1. Create new Advanced eDiscovery cases.
-2. Migrate case details, holds, searches etc.
-3. Generate migration status report with success & failure.
+### How does eDiscovery Shift work?
+
+1. Creates a new Advanced eDiscovery case.
+2. Migrates core eDiscovery case details and holds. 
+3. Generate migration status report including any failures.
 4. Release the holds from old cases (Coming Soon)
 5. Delete old Core eDiscovery cases (Coming Soon)
 
 
-## Getting Started
+## Before you begin
 
 ### Pre-requisites
 
 #### 1. Licensing & subscription
-Before using eDiscovery Shift, ensure that you have appropriate organization subscription and per-user licensing. To access Advanced eDiscovery in the Microsoft 365 compliance center, your organization must have one of the following:
+Before using eDiscovery Shift, ensure that you have appropriate organization subscription and per-user licensing. To access Advanced eDiscovery in the Microsoft 365 Compliance Center, your organization must have one of the following:
 - Microsoft 365 E5 or Office 365 E5 subscription
 - Microsoft 365 E3 subscription with E5 Compliance add-on
 - Microsoft 365 E3 subscription with E5 eDiscovery and Audit add-on
@@ -39,8 +39,9 @@ If you don't have an existing Microsoft 365 E5 plan and want to try Advanced eDi
 
 #### 2. Roles & user permissions
 You must have appropriate role/user permissions to be able to run this tool. 
-- Global Administration and eDiscovery Administrator roles assigned to single user
-- eDiscovery Administrator role with consent for super user elevation provided by Global Admin. [Here's how to setup that]()
+- Global Administration
+- eDiscovery Administrator role group 
+
 
 #### 3. PowerShell 
 - You must have PowerShell version 5.1 or above to run this tool.
@@ -56,11 +57,12 @@ You must have appropriate role/user permissions to be able to run this tool.
         Install-Module -Name "Microsoft.graph.compliance"
         ```
 
-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+## Migration Instructions
 
 ### Installation
 
-- Step 0: [Download]() & extract zip file from this repository.
+- Step 0: [Download](https://github.com/OfficeDev/eDiscovery/archive/refs/heads/main.zip) & extract zip file from this repository.
 - Step 1: Open PowerShell in administrator mode.
 - Step 2: Navigate to the location from *Step 0* where you have downloaded the files.
     ```powershell 
@@ -72,7 +74,7 @@ You must have appropriate role/user permissions to be able to run this tool.
     ```
  You are now ready to start migrating your Core eDiscovery cases to Advanced eDiscovery!
 
-## Migrate your cases
+### Migrate cases
 
 1. Run the following cmdlet in your PowerShell window to launch the application.
 ```powershell

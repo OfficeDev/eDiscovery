@@ -89,21 +89,21 @@
                     FontWeight="Normal"
                     Binding="{Binding CaseName}"/>
                 <DataGridTextColumn
-                    Width="220"
+                    Width="205"
                     IsReadOnly="True"
                     Header="Case ID"
                     HeaderStyle="{StaticResource WrappedColumnHeaderStyle}"
                     FontWeight="Normal"
                     Binding="{Binding CaseId}"/>
                 <DataGridTextColumn
-                    Width="210"
+                    Width="200"
                     IsReadOnly="True"
                     Header="Description"
                     HeaderStyle="{StaticResource WrappedColumnHeaderStyle}"
                     FontWeight="Normal"
                     Binding="{Binding Description}"/>
                 <DataGridTextColumn
-                    Width="205"
+                    Width="200"
                     IsReadOnly="False"
                     Header="Link"
                     FontWeight="Normal"

@@ -231,7 +231,7 @@ class Hold : CoreHold{
             }
             elseif(($queryUpdated -eq $policyCreated) -and ($queryUpdated -eq 0))
             {
-                $queryUpdatedStatus = "No hold policy created. "
+                $queryUpdatedStatus = "No hold policy created or updated with queries. "
             }
             elseif(($queryUpdated -lt $policyCreated) -and ($queryUpdated -ne 0))
             {

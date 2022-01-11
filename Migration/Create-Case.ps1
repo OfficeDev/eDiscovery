@@ -76,8 +76,9 @@ class Case : CoreCase {
                 $this.IsMigrated= $true
                 try
                 {
-                    $this.CoreDescription += "`n"+"This was migrated to Advanced eDiscovery case ID: $($this.AdvancedCaseId) on date: $(Get-Date -Format 'ddMMyy')." 
-                    Set-ComplianceCase -Identity  $this.CaseName -Description $this.CoreDescription 
+                    $coredes = $this.CoreDescription
+                    $coredes += "`n"+"This was migrated to Advanced eDiscovery case ID: $($this.AdvancedCaseId) on date: $(Get-Date -Format 'ddMMyy')." 
+                    Set-ComplianceCase -Identity  $this.CaseName -Description $coredes
                 }
                 catch
                 {}
