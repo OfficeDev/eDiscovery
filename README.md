@@ -81,10 +81,12 @@ Start-Migration
 
 2. Login with your credentials (You can login using the following 2 methods)
     - Login using global admin credentials.
-        ![loging](https://user-images.githubusercontent.com/69503744/148873609-9eb363c3-17fc-457a-975f-1b22e40e782d.PNG)
+        ![galogin](https://user-images.githubusercontent.com/69503744/148874487-b8920e99-5067-48aa-bab2-4eb2bcaa73ba.png)
+
 
     - Login using app credentials. 
-        ![logina](https://user-images.githubusercontent.com/69503744/148873571-ea0d6c1b-ccb2-4688-98cf-252ff65c3a9d.png)
+        ![applogin](https://user-images.githubusercontent.com/69503744/148874524-a3ca5163-6b67-4dc7-877b-46c16853f2bb.png)
+
 
       NOTE: For login using app credentials you should have valid client id, tenant id and certificate thumbprint. If you don't have any app with these required information               and required permissions then you can create one following the steps mentioned in the document(eDiscoveryLogin.docx) present in this repo at location 
             'https://github.com/OfficeDev/eDiscovery/tree/main/Documents'. You should have global admin rights to create an app (with required permissions).
