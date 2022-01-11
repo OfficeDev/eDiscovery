@@ -310,7 +310,7 @@ function Invoke-eDiscoveryConnections {
     }
         
 
-    try {
+    try {      
         $userName = Read-Host -Prompt 'Input the user name' -ErrorAction:SilentlyContinue
         $InfoMessage = "Connecting to Security & Compliance Center"
         Write-Host "$(Get-Date) $InfoMessage"
@@ -337,10 +337,37 @@ function Invoke-eDiscoveryConnections {
         Write-Log -IsError -ErrorMessage $ErrorMessage -StackTraceInfo $StackTraceInfo -LogFile $LogFile -ErrorAction:SilentlyContinue
     }
     try {
-        $InfoMessage = "Connecting to Microsoft Graph"
+        $InfoMessage = "Trying to connect to Microsoft Graph..."
         Write-Host "$(Get-Date) $InfoMessage"
-        Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
-        Connect-MgGraph -Scopes "Group.ReadWrite.All,eDiscovery.ReadWrite.All" -ErrorAction:SilentlyContinue -WarningAction:SilentlyContinue
+        $GA = Read-Host -Prompt 'Press Y to login using Global Admin credentials(Default is N) ' -ErrorAction:SilentlyContinue
+        if($GA -eq 'Y')
+        {
+            $InfoMessage = "Connecting to Microsoft Graph"
+            Write-Host "$(Get-Date) $InfoMessage"
+            Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
+            Connect-MgGraph -Scopes "Group.ReadWrite.All,eDiscovery.ReadWrite.All" -ErrorAction:SilentlyContinue -WarningAction:SilentlyContinue
+        }
+        else {
+            $AA = Read-Host -Prompt 'Press Y to login using App credentials(Default is N)  ' -ErrorAction:SilentlyContinue
+            if($AA -eq 'Y')
+            {
+                $clientId = Read-Host -Prompt 'Input the ClientId' -ErrorAction:SilentlyContinue
+                $tenantId = Read-Host -Prompt 'Input the TenantId' -ErrorAction:SilentlyContinue
+                $certificateThumbprint = Read-Host -Prompt 'Input the Certificate Thumbprint' -ErrorAction:SilentlyContinue
+                
+                $InfoMessage = "Connecting to Microsoft Graph using app credentials..."
+                Write-Host "$(Get-Date) $InfoMessage"
+                Connect-MgGraph -ClientID $clientId -TenantId $tenantId -CertificateThumbprint $certificateThumbprint
+                
+                Start-Sleep -s 15
+            }
+            else
+            {
+                Write-Host "Error:$(Get-Date) Please restart the tool and login to MgGraph to use the tool." -ForegroundColor:Red       
+            }
+        }
+
+       
         Select-MgProfile -Name "beta"
     }
     catch {
