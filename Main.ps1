@@ -313,7 +313,9 @@ function Invoke-eDiscoveryConnections {
     try {   
         $InfoMessage = "Connecting to Security & Compliance Center"
         Write-Host "$(Get-Date) $InfoMessage"   
-        $userName = Read-Host -Prompt 'Input the user name' -ErrorAction:SilentlyContinue      
+        Write-Host "Input the user name:" -NoNewline -ForegroundColor Yellow
+        $userName = Read-Host -ErrorAction:SilentlyContinue
+            
         Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
         Connect-IPPSSession -UserPrincipalName $userName -ErrorAction:SilentlyContinue -WarningAction:SilentlyContinue     
     }
@@ -339,7 +341,9 @@ function Invoke-eDiscoveryConnections {
     try {
         $InfoMessage = "Trying to connect to Microsoft Graph..."
         Write-Host "$(Get-Date) $InfoMessage"
-        $GA = Read-Host -Prompt 'Press Y to login using Global Admin credentials(Default is N) ' -ErrorAction:SilentlyContinue
+        Write-Host "Press Y to login using Global Admin credentials(Default is N) :" -NoNewline -ForegroundColor Yellow
+        $GA = Read-Host -ErrorAction:SilentlyContinue
+        
         if($GA -eq 'Y')
         {
             $InfoMessage = "Connecting to Microsoft Graph"
@@ -348,13 +352,17 @@ function Invoke-eDiscoveryConnections {
             Connect-MgGraph -Scopes "Group.ReadWrite.All,eDiscovery.ReadWrite.All" -ErrorAction:SilentlyContinue -WarningAction:SilentlyContinue
         }
         else {
-            $AA = Read-Host -Prompt 'Press Y to login using App credentials(Default is N)  ' -ErrorAction:SilentlyContinue
+            Write-Host "Press Y to login using App credentials(Default is N) :" -NoNewline -ForegroundColor Yellow
+            $AA = Read-Host -ErrorAction:SilentlyContinue
             if($AA -eq 'Y')
-            {
-                $clientId = Read-Host -Prompt 'Input the ClientId' -ErrorAction:SilentlyContinue
-                $tenantId = Read-Host -Prompt 'Input the TenantId' -ErrorAction:SilentlyContinue
-                $certificateThumbprint = Read-Host -Prompt 'Input the Certificate Thumbprint' -ErrorAction:SilentlyContinue
-                
+            {               
+                Write-Host "Input the ClientId :" -NoNewline -ForegroundColor Yellow
+                $clientId = Read-Host -ErrorAction:SilentlyContinue
+                Write-Host "Input the TenantId :" -NoNewline -ForegroundColor Yellow
+                $tenantId = Read-Host -ErrorAction:SilentlyContinue
+                Write-Host "Input the Certificate Thumbprint :" -NoNewline -ForegroundColor Yellow
+                $certificateThumbprint = Read-Host -ErrorAction:SilentlyContinue
+
                 $InfoMessage = "Connecting to Microsoft Graph using app credentials..."
                 Write-Host "$(Get-Date) $InfoMessage"
                 Connect-MgGraph -ClientID "$clientId" -TenantId "$tenantId" -CertificateThumbprint "$certificateThumbprint"
