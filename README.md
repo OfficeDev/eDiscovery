@@ -85,33 +85,38 @@ You must have appropriate role/user permissions to be able to run this tool. The
 Start-Migration
 ```
 
-2. Login with your credentials (You can login using the following 2 methods)
-    - Login using global admin credentials.
+2. Login to Exchange Online and Security & Compliance Centre with your credentials (_must have eDiscovery Administrator role_)
     
-    ![galogin](https://user-images.githubusercontent.com/69503744/148874487-b8920e99-5067-48aa-bab2-4eb2bcaa73ba.png)
+   ![exclogin](https://user-images.githubusercontent.com/69503744/148892202-56391ea4-d439-4560-b454-907e3c31c31b.png)
+
+
+3. Login to Microsoft Graph with your credentials (You can login using the following 2 methods)
+    - Login using global admin credentials (_must have both Global Administration role and eDiscovery Administrator role group_)
+    
+    ![loginusingglobaladmin](https://user-images.githubusercontent.com/69503744/148891257-ed2ac389-02a7-416d-b96b-3715a811851e.png)
 
 
     - Login using app credentials. 
     
-    ![applogin](https://user-images.githubusercontent.com/69503744/148874524-a3ca5163-6b67-4dc7-877b-46c16853f2bb.png)
+    ![loginusingappid](https://user-images.githubusercontent.com/69503744/148891298-6925df5c-f318-41d2-8a09-cd5b3a67e6ea.png)
 
 
     NOTE: For login using app credentials you should have valid client id, tenant id and certificate thumbprint. If you don't have any app with these required information               and required permissions then you can create one following the steps mentioned in [this guide](https://github.com/OfficeDev/eDiscovery/blob/main/Documents/MicrosoftGraph-Login-with-App-Credentials.md). Alternatively, you can refer this document ([eDiscoveryLogin.docx](https://github.com/OfficeDev/eDiscovery/tree/main/Documents)). You should have global admin rights to create an app (with required permissions).
     
-3. Click *Get Started* button once the application launches.
+4. Click *Get Started* button once the application launches.
 ![image](https://user-images.githubusercontent.com/67892508/148191465-84d5e5ee-e25f-4eff-8734-631978d62573.png)
 
-4. Select the Core eDiscovery cases you want to migrate to Advanced eDiscovery. Then click *Migrate Selected* or *Migrate All* button.
+5. Select the Core eDiscovery cases you want to migrate to Advanced eDiscovery. Then click *Migrate Selected* or *Migrate All* button.
 ![image](https://user-images.githubusercontent.com/67892508/148191576-7763bfb9-194a-4015-8038-377815f5b7c6.png)
 
-5. Review your case selection and click the *Start Migration* button.
+6. Review your case selection and click the *Start Migration* button.
 ![image](https://user-images.githubusercontent.com/67892508/148191770-5ad72341-6fcf-40c7-8c53-6739e4563b58.png)
 
-6. Be patient! Wait for PowerShell scripts to complete execution. Once the PowerShell script has completed execution:
+7. Be patient! Wait for PowerShell scripts to complete execution. Once the PowerShell script has completed execution:
     - Look at the final migration status report
     - Visit [Compliance Center](compliance.microsoft.com) and check your new cases.
 
-7. \[OPTIONAL\] If you are satisfied with your new Advanced eDiscovery case, you can go ahead and delete/close the corresponding Core eDiscovery case.
+8. \[OPTIONAL\] If you are satisfied with your new Advanced eDiscovery case, you can go ahead and delete/close the corresponding Core eDiscovery case.
 
 
 ## Provide Feedback & Report Bugs
