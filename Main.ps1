@@ -310,10 +310,10 @@ function Invoke-eDiscoveryConnections {
     }
         
 
-    try {      
-        $userName = Read-Host -Prompt 'Input the user name' -ErrorAction:SilentlyContinue
+    try {   
         $InfoMessage = "Connecting to Security & Compliance Center"
-        Write-Host "$(Get-Date) $InfoMessage"
+        Write-Host "$(Get-Date) $InfoMessage"   
+        $userName = Read-Host -Prompt 'Input the user name' -ErrorAction:SilentlyContinue      
         Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
         Connect-IPPSSession -UserPrincipalName $userName -ErrorAction:SilentlyContinue -WarningAction:SilentlyContinue     
     }
@@ -357,8 +357,7 @@ function Invoke-eDiscoveryConnections {
                 
                 $InfoMessage = "Connecting to Microsoft Graph using app credentials..."
                 Write-Host "$(Get-Date) $InfoMessage"
-                Connect-MgGraph -ClientID $clientId -TenantId $tenantId -CertificateThumbprint $certificateThumbprint
-                
+                Connect-MgGraph -ClientID "$clientId" -TenantId "$tenantId" -CertificateThumbprint "$certificateThumbprint"
                 Start-Sleep -s 15
             }
             else
