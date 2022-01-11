@@ -51,6 +51,11 @@ You must have appropriate role/user permissions to be able to run this tool.
         Install-Module -Name ExchangeOnlineManagement
         ```
     - Exchange Online PowerShell module (http://aka.ms/exopsmodule)
+- You must have Microsoft Graph (Compliance) module (You can follow the following method to download the same)
+    - Microsoft Graph (Compliance) module that is available via the PowerShell gallery:
+        ```powershell 
+        Install-Module -Name "Microsoft.graph.compliance"
+        ```
 
 
 ## Migration Instructions
@@ -76,8 +81,20 @@ You must have appropriate role/user permissions to be able to run this tool.
 Start-Migration
 ```
 
-2. Login with your credentials.
+2. Login with your credentials (You can login using the following 2 methods)
+    - Login using global admin credentials.
+    
+    ![galogin](https://user-images.githubusercontent.com/69503744/148874487-b8920e99-5067-48aa-bab2-4eb2bcaa73ba.png)
 
+
+    - Login using app credentials. 
+    
+    ![applogin](https://user-images.githubusercontent.com/69503744/148874524-a3ca5163-6b67-4dc7-877b-46c16853f2bb.png)
+
+
+    NOTE: For login using app credentials you should have valid client id, tenant id and certificate thumbprint. If you don't have any app with these required information               and required permissions then you can create one following the steps mentioned in the document(eDiscoveryLogin.docx) present in this repo at location 
+            'https://github.com/OfficeDev/eDiscovery/tree/main/Documents'. You should have global admin rights to create an app (with required permissions).
+    
 3. Click *Get Started* button once the application launches.
 ![image](https://user-images.githubusercontent.com/67892508/148191465-84d5e5ee-e25f-4eff-8734-631978d62573.png)
 
