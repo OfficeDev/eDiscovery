@@ -38,11 +38,14 @@ Before using eDiscovery Shift, ensure that you have appropriate organization sub
 If you don't have an existing Microsoft 365 E5 plan and want to try Advanced eDiscovery, you can [add Microsoft 365](https://docs.microsoft.com/en-us/office365/admin/try-or-buy-microsoft-365) to your existing subscription or [sign up for a trial](https://www.microsoft.com/microsoft-365/enterprise) of Microsoft 365 E5.
 
 #### 2. Roles & user permissions
-You must have appropriate role/user permissions to be able to run this tool. There are two ways you may run this tool.
+You must have appropriate role/user permissions to be able to run this tool. There are three ways you may run this tool.
 
 - Using Global Administrator credentials. (You must have _<b>both</b>_ of the following roles)
     - Global Administration
     - eDiscovery Administrator role group 
+- Using eDiscovery Administrator credentials. 
+    - eDiscovery Administrator role group needed
+    - Dependency on Global Admin
 - Using App-only authentication (_<b>Not supported yet</b>_)
     - eDiscovery Administrator role group users can login (_without Global Administration role_) using App-only authentication. 
     - Global Administrators can set it up using [this guide](https://github.com/OfficeDev/eDiscovery/blob/main/Documents/MicrosoftGraph-Login-with-App-Credentials.md).
@@ -90,11 +93,17 @@ Start-Migration
    ![exclogin](https://user-images.githubusercontent.com/69503744/148892202-56391ea4-d439-4560-b454-907e3c31c31b.png)
 
 
-3. Login to Microsoft Graph with your credentials (You can login using the following 2 methods)
+3. Login to Microsoft Graph with your credentials (You can login using the following 3 methods)
     - Login using global admin credentials (_must have both Global Administration role and eDiscovery Administrator role group_)
     
     ![loginusingglobaladmin](https://user-images.githubusercontent.com/69503744/148891257-ed2ac389-02a7-416d-b96b-3715a811851e.png)
+    
+    - Login using global admin credentials (_must have eDiscovery Administrator role group_)
 
+    ![eDisc8](https://user-images.githubusercontent.com/69503744/150072472-166d7f80-a9fe-4c53-8ad4-c596d2029738.png)
+
+    
+    NOTE:  If you want to login using eDiscovery Admin, please follow the steps mentioned in  [this guide](https://github.com/OfficeDev/eDiscovery/blob/main/Documents/eDiscoveryAdminUserConfig.md). This will have dependency on Global Admin.
 
     - Login using app credentials. (_<b>Not supported yet</b>_)
     
