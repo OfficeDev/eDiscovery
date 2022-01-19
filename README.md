@@ -96,7 +96,7 @@ Start-Migration
     ![loginusingglobaladmin](https://user-images.githubusercontent.com/69503744/148891257-ed2ac389-02a7-416d-b96b-3715a811851e.png)
 
 
-    - Login using app credentials. 
+    - Login using app credentials. (*Not supported yet*)
     
     ![loginusingappid](https://user-images.githubusercontent.com/69503744/148891298-6925df5c-f318-41d2-8a09-cd5b3a67e6ea.png)
 
