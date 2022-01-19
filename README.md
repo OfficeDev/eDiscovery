@@ -98,7 +98,7 @@ Start-Migration
     
     ![loginusingglobaladmin](https://user-images.githubusercontent.com/69503744/148891257-ed2ac389-02a7-416d-b96b-3715a811851e.png)
     
-    - Login using global admin credentials (_must have eDiscovery Administrator role group_)
+    - Login using eDisc admin credentials (_must have eDiscovery Administrator role group_)
 
     ![eDisc8](https://user-images.githubusercontent.com/69503744/150072472-166d7f80-a9fe-4c53-8ad4-c596d2029738.png)
 
