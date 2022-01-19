@@ -5,8 +5,11 @@ Steps for login using eDiscovery Admin:
 
 
 - <b>Step by Global Admin:</b>  Login to AzureAD using Global admin credentials.
+
 Go to Enterprise Applications > User Settings
+
 Find the below option “Admin consent request”
+
 Set this “Users can request admin consent to apps they are unable to consent to” to “Yes”.
 
 _Wait for few hours. It may take 6-12 hours to take effect._
