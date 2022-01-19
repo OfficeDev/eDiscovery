@@ -42,8 +42,6 @@ Enterprise Applications > Admin consent requests > All(preview)
 Here select the request you want to approve and click on Review permissions and consent and approve using global admin credentials.
 
 ![eDisc6](https://user-images.githubusercontent.com/69503744/150069776-d5dff2fc-4301-45e4-9e7a-bf4b9936cd07.png)
-
-
 approve using global admin credentials.
 
 ![eDisc7](https://user-images.githubusercontent.com/69503744/150069788-d49cec26-3795-433f-9c22-1c966dab9a71.png)
