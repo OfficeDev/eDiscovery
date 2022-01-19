@@ -15,7 +15,7 @@ _Wait for few hours. It may take 6-12 hours to take effect._
 
  
 
-<b>WARNING:<b> This step will allow users to request admin consent for any enterprise app. Access can be granted only by the administrator. You can switch on/off (select yes/no for this feature) as per your need.
+<b>WARNING:</b> This step will allow users to request admin consent for any enterprise app. Access can be granted only by the administrator. You can switch on/off (select yes/no for this feature) as per your need.
 
 - <b> 1.Step by eDisc Admin:</b>  Try to login using eDiscovery Admin first on this screen.
  
