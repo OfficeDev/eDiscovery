@@ -341,7 +341,7 @@ function Invoke-eDiscoveryConnections {
     try {
         $InfoMessage = "Trying to connect to Microsoft Graph..."
         Write-Host "$(Get-Date) $InfoMessage"
-        Write-Host "Press Y to login using Global Admin credentials(Default is N) :" -NoNewline -ForegroundColor Yellow
+        Write-Host "Press Y to login using Global/eDiscovery Admin credentials(Default is N) :" -NoNewline -ForegroundColor Yellow
         $GA = Read-Host -ErrorAction:SilentlyContinue
         
         if($GA -eq 'Y')
