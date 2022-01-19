@@ -43,7 +43,7 @@ You must have appropriate role/user permissions to be able to run this tool. The
 - Using Global Administrator credentials. (You must have _<b>both</b>_ of the following roles)
     - Global Administration
     - eDiscovery Administrator role group 
-- Using App-only authentication
+- Using App-only authentication (_<b>Not supported yet</b>_)
     - eDiscovery Administrator role group users can login (_without Global Administration role_) using App-only authentication. 
     - Global Administrators can set it up using [this guide](https://github.com/OfficeDev/eDiscovery/blob/main/Documents/MicrosoftGraph-Login-with-App-Credentials.md).
 
@@ -96,7 +96,7 @@ Start-Migration
     ![loginusingglobaladmin](https://user-images.githubusercontent.com/69503744/148891257-ed2ac389-02a7-416d-b96b-3715a811851e.png)
 
 
-    - Login using app credentials. (*Not supported yet*)
+    - Login using app credentials. (_<b>Not supported yet</b>_)
     
     ![loginusingappid](https://user-images.githubusercontent.com/69503744/148891298-6925df5c-f318-41d2-8a09-cd5b3a67e6ea.png)
 
