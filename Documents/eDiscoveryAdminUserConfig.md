@@ -1,6 +1,7 @@
 # Steps for login using eDiscovery Admin Credentials
 
-<b>Steps for login using eDiscovery Admin(Method 1):</b>
+
+## Steps for login using eDiscovery Admin(Method 1):
 
 - <b>Step by Global Admin:</b>  Connect to Mg-Graph using Global admin credentials using the following command in powershell window:
 
@@ -26,7 +27,8 @@ Select ‘Y’ for "Is eDiscovery ReadWrite permissions already granted to eDisc
 
 
 
-<b>Steps for login using eDiscovery Admin(Method 2):</b>
+
+## Steps for login using eDiscovery Admin(Method 2):
 
 
 - <b>Step by Global Admin:</b>  Login to AzureAD using Global admin credentials.
