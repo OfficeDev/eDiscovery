@@ -13,11 +13,11 @@ Accept this and grant permissions to all the users.
 
 - <b>Step by eDisc Admin:</b> 
 
-Try to login using eDiscovery Admin first on this screen.
-
 Select your role as eDiscovery Admin.
 
 Select ‘Y’ for "Is eDiscovery ReadWrite permissions already granted to eDiscovery Admin?"
+
+Login using you eDiscovery Admin credentials.
 
 
 ![2Y](https://user-images.githubusercontent.com/69503744/150278047-84c7a2df-eb23-43b2-9c73-d15ed6462695.png)
