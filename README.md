@@ -43,9 +43,10 @@ You must have appropriate role/user permissions to be able to run this tool. The
 - Using Global Administrator credentials. (You must have _<b>both</b>_ of the following roles)
     - Global Administration
     - eDiscovery Administrator role group 
-- Using App-only authentication (_<b>Not supported yet</b>_)
-    - eDiscovery Administrator role group users can login (_without Global Administration role_) using App-only authentication. 
-    - Global Administrators can set it up using [this guide](https://github.com/OfficeDev/eDiscovery/blob/main/Documents/MicrosoftGraph-Login-with-App-Credentials.md).
+- Using eDiscovery Administrator credentials. 
+    - eDiscovery Administrator role group needed
+    - Dependency on Global Admin. 
+      Please refer [this guide](https://github.com/OfficeDev/eDiscovery/blob/main/Documents/eDiscoveryAdminUserConfig.md) for more information.
 
 #### 3. PowerShell 
 - You must have PowerShell version 5.1 or above to run this tool.
@@ -93,15 +94,13 @@ Start-Migration
 3. Login to Microsoft Graph with your credentials (You can login using the following 2 methods)
     - Login using global admin credentials (_must have both Global Administration role and eDiscovery Administrator role group_)
     
-    ![loginusingglobaladmin](https://user-images.githubusercontent.com/69503744/148891257-ed2ac389-02a7-416d-b96b-3715a811851e.png)
+    ![GA0](https://user-images.githubusercontent.com/69503744/150276693-09df0763-610f-47ec-acbd-043f15cf7b01.png)
 
-
-    - Login using app credentials. (_<b>Not supported yet</b>_)
     
-    ![loginusingappid](https://user-images.githubusercontent.com/69503744/148891298-6925df5c-f318-41d2-8a09-cd5b3a67e6ea.png)
+    - Login using eDisc admin credentials (_must have eDiscovery Administrator role group_)
 
+    NOTE:  If you want to login using eDiscovery Admin, please follow the steps mentioned in  [this guide](https://github.com/OfficeDev/eDiscovery/blob/main/Documents/eDiscoveryAdminUserConfig.md). This will have dependency on Global Admin.
 
-    NOTE: For login using app credentials you should have valid client id, tenant id and certificate thumbprint. If you don't have any app with these required information               and required permissions then you can create one following the steps mentioned in [this guide](https://github.com/OfficeDev/eDiscovery/blob/main/Documents/MicrosoftGraph-Login-with-App-Credentials.md). Alternatively, you can refer this document ([eDiscoveryLogin.docx](https://github.com/OfficeDev/eDiscovery/tree/main/Documents)). You should have global admin rights to create an app (with required permissions).
     
 4. Click *Get Started* button once the application launches.
 ![image](https://user-images.githubusercontent.com/67892508/148191465-84d5e5ee-e25f-4eff-8734-631978d62573.png)
