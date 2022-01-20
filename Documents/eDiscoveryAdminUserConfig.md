@@ -19,7 +19,7 @@ Select your role as eDiscovery Admin.
 Select ‘Y’ for "Is eDiscovery ReadWrite permissions already granted to eDiscovery Admin?"
 
 
-![EA1](https://user-images.githubusercontent.com/69503744/150277297-5730c7df-0f29-4b15-9e99-18c2b65cf78c.png)
+![2Y](https://user-images.githubusercontent.com/69503744/150278047-84c7a2df-eb23-43b2-9c73-d15ed6462695.png)
 
 
 
@@ -53,7 +53,7 @@ Select your role as eDiscovery Admin.
 Select ‘N’ for "Is eDiscovery ReadWrite permissions already granted to eDiscovery Admin?"
 
  
-![EA2](https://user-images.githubusercontent.com/69503744/150277498-ecfd4864-1d5d-41ff-b535-5f258a9a6527.png)
+![2N](https://user-images.githubusercontent.com/69503744/150278075-822965f9-4881-4062-8cab-104838c03218.png)
 
  
 
