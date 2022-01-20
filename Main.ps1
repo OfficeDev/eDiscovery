@@ -341,10 +341,13 @@ function Invoke-eDiscoveryConnections {
     try {
         $InfoMessage = "Trying to connect to Microsoft Graph..."
         Write-Host "$(Get-Date) $InfoMessage"
-        Write-Host "Press Y to login using Global/eDiscovery Admin credentials(Default is N) :" -NoNewline -ForegroundColor Yellow
+        Write-Host "You can login using any of the following methods(Please refer README.md for more details):"  -ForegroundColor Yellow
+        Write-Host "1. Global Administrator:" -ForegroundColor Yellow
+        Write-Host "2. eDiscovery Administrator:"  -ForegroundColor Yellow
+        Write-Host "Please press '1' or '2' as per your choice:" -NoNewline -ForegroundColor Yellow
         $GA = Read-Host -ErrorAction:SilentlyContinue
         
-        if($GA -eq 'Y')
+        if($GA -eq '1')
         {
             $InfoMessage = "Connecting to Microsoft Graph"
             Write-Host "$(Get-Date) $InfoMessage"
@@ -352,25 +355,22 @@ function Invoke-eDiscoveryConnections {
             Connect-MgGraph -Scopes "Group.ReadWrite.All,eDiscovery.ReadWrite.All" -ErrorAction:SilentlyContinue -WarningAction:SilentlyContinue
         }
         else {
-            Write-Host "Press Y to login using App credentials(Default is N) :" -NoNewline -ForegroundColor Yellow
+            Write-Host "Is eDiscovery ReadWrite permissions in Microsoft Graph already granted to eDiscovery Admin?"-ForegroundColor Yellow
+            Write-Host "Press 'Y' for Yes and 'N' for No.(Default is 'N'(No)): " -NoNewline -ForegroundColor Yellow
             $AA = Read-Host -ErrorAction:SilentlyContinue
-            if($AA -eq 'Y')
-            {               
-                Write-Host "Input the ClientId :" -NoNewline -ForegroundColor Yellow
-                $clientId = Read-Host -ErrorAction:SilentlyContinue
-                Write-Host "Input the TenantId :" -NoNewline -ForegroundColor Yellow
-                $tenantId = Read-Host -ErrorAction:SilentlyContinue
-                Write-Host "Input the Certificate Thumbprint :" -NoNewline -ForegroundColor Yellow
-                $certificateThumbprint = Read-Host -ErrorAction:SilentlyContinue
-
-                $InfoMessage = "Connecting to Microsoft Graph using app credentials..."
-                Write-Host "$(Get-Date) $InfoMessage"
-                Connect-MgGraph -ClientID "$clientId" -TenantId "$tenantId" -CertificateThumbprint "$certificateThumbprint"
+            if($AA -eq 'N')
+            {  
+                $InfoMessage = "Connecting to Microsoft Graph..."
+                Write-Host "$(Get-Date) $InfoMessage"             
+                Connect-MgGraph -Scopes "Group.ReadWrite.All,eDiscovery.ReadWrite.All" -ErrorAction:SilentlyContinue -WarningAction:SilentlyContinue
                 Start-Sleep -s 15
             }
             else
             {
-                Write-Host "Error:$(Get-Date) Please restart the tool and login to MgGraph to use the tool." -ForegroundColor:Red       
+                $InfoMessage = "Connecting to Microsoft Graph..."
+                Write-Host "$(Get-Date) $InfoMessage"             
+                Connect-MgGraph -ErrorAction:SilentlyContinue -WarningAction:SilentlyContinue
+                Start-Sleep -s 15
             }
         }
 
