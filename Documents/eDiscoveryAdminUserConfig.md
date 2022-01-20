@@ -1,7 +1,34 @@
 # Steps for login using eDiscovery Admin Credentials
 
 
-Steps for login using eDiscovery Admin:
+## Steps for login using eDiscovery Admin(Method 1):
+
+- <b>Step by Global Admin:</b>  Connect to Mg-Graph using Global admin credentials using the following command in powershell window:
+
+         Connect-MgGraph -Scopes "eDiscovery.ReadWrite.All, Group.ReadWrite.All"
+         
+Accept this and grant permissions to all the users.
+         
+![GAAccept](https://user-images.githubusercontent.com/69503744/150277137-77ab7464-3900-4de4-87aa-b494056c6189.png)
+
+- <b>Step by eDisc Admin:</b> 
+
+Try to login using eDiscovery Admin first on this screen.
+
+Select your role as eDiscovery Admin.
+
+Select ‘Y’ for "Is eDiscovery ReadWrite permissions already granted to eDiscovery Admin?"
+
+
+![2Y](https://user-images.githubusercontent.com/69503744/150278047-84c7a2df-eb23-43b2-9c73-d15ed6462695.png)
+
+
+
+
+
+
+
+## Steps for login using eDiscovery Admin(Method 2):
 
 
 - <b>Step by Global Admin:</b>  Login to AzureAD using Global admin credentials.
@@ -22,9 +49,14 @@ _Wait for few hours. It may take 6-12 hours to take effect._
 
 
 - <b>Step by eDisc Admin:</b>  Try to login using eDiscovery Admin first on this screen.
+
+Select your role as eDiscovery Admin.
+
+Select ‘N’ for "Is eDiscovery ReadWrite permissions already granted to eDiscovery Admin?"
+
  
-![eDisc2](https://user-images.githubusercontent.com/69503744/150069646-cb2dd1b1-bdde-44e7-9c42-ad0b48813d52.png)
-![eDisc3](https://user-images.githubusercontent.com/69503744/150069662-ba8b79dd-5791-470c-b26a-0db8914c6646.png)
+![2N](https://user-images.githubusercontent.com/69503744/150278075-822965f9-4881-4062-8cab-104838c03218.png)
+
  
 
    Now as you don’t have global admin rights you can ask for approval from admin just by filling the justification here.
@@ -53,9 +85,12 @@ approve using global admin credentials.
 
 
 - <b>Step by eDisc Admin:</b> Try to login using eDiscovery Admin first on this screen.
+
+Here select your role as “Global Admin”
  
 Now login again using eDiscovery Admin credentials. You will be able to login now.
-![eDisc8](https://user-images.githubusercontent.com/69503744/150069802-acb4e4bb-46cd-4bad-a825-825d5df125a3.png)
+![GA0](https://user-images.githubusercontent.com/69503744/150277837-5a859c89-819f-48f8-858d-4fa10db90a52.png)
+
 
  
 
