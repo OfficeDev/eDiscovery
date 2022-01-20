@@ -94,13 +94,11 @@ Start-Migration
 3. Login to Microsoft Graph with your credentials (You can login using the following 2 methods)
     - Login using global admin credentials (_must have both Global Administration role and eDiscovery Administrator role group_)
     
-    ![loginusingglobaladmin](https://user-images.githubusercontent.com/69503744/148891257-ed2ac389-02a7-416d-b96b-3715a811851e.png)
+    ![GA0](https://user-images.githubusercontent.com/69503744/150276693-09df0763-610f-47ec-acbd-043f15cf7b01.png)
+
     
     - Login using eDisc admin credentials (_must have eDiscovery Administrator role group_)
 
-    ![eDisc8](https://user-images.githubusercontent.com/69503744/150072472-166d7f80-a9fe-4c53-8ad4-c596d2029738.png)
-
-    
     NOTE:  If you want to login using eDiscovery Admin, please follow the steps mentioned in  [this guide](https://github.com/OfficeDev/eDiscovery/blob/main/Documents/eDiscoveryAdminUserConfig.md). This will have dependency on Global Admin.
 
     
