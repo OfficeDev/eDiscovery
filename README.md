@@ -1,6 +1,6 @@
 # eDiscovery Shift 
 Core eDiscovery (E3) to Advanced eDiscovery (E5) Migration Tool
-
+ 
 ## Overview
 Today, customers have no direct pathway to migrate their eDiscovery cases from [Core eDiscovery (E3)](https://docs.microsoft.com/en-us/microsoft-365/compliance/get-started-core-ediscovery?view=o365-worldwide) to [Advanced eDiscovery (E5)](https://docs.microsoft.com/en-us/microsoft-365/compliance/overview-ediscovery-20?view=o365-worldwide#subscriptions-and-licensing). 
 
