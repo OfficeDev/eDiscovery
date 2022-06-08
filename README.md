@@ -37,7 +37,7 @@ Before using eDiscovery Shift, ensure that you have appropriate organization sub
 
 If you don't have an existing Microsoft 365 E5 plan and want to try Advanced eDiscovery, you can [add Microsoft 365](https://docs.microsoft.com/en-us/office365/admin/try-or-buy-microsoft-365) to your existing subscription or [sign up for a trial](https://www.microsoft.com/microsoft-365/enterprise) of Microsoft 365 E5.
 
-#### 2. Roles & user permissions
+#### 2. Roles & user permissions 
 You must have appropriate role/user permissions to be able to run this tool. There are two ways you may run this tool.
 
 - Using Global Administrator credentials. (You must have _<b>both</b>_ of the following roles)
