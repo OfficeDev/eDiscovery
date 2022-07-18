@@ -107,6 +107,39 @@ function Get-AppDirectory {
 }
 
 function Start-Migration {
+   
+    # Code for timeout
+    # This will be invoked when timer completes.
+    $elapsedEventHandler = {
+        param ([System.Object]$sender, [System.Timers.ElapsedEventArgs]$e)
+
+        $InfoMessage = "Terminating current session due to timeout. "
+        Write-Host "$(Get-Date) $InfoMessage" -ForegroundColor Red
+        Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
+        $InfoMessage = "Log file is in $LogFile" 
+        Write-Host "$(Get-Date) $InfoMessage" -ForegroundColor Yellow
+        
+        ($sender -as [System.Timers.Timer]).Stop()
+        Unregister-Event -SourceIdentifier Timer.eDiscovery   
+        Start-Sleep 5
+        [System.Management.Automation.Runspaces.Runspace]::DefaultRunspace.CloseAsync()
+        Write-Host "Session Terminated. "
+    }
+    if ( [bool](Get-Job -Name Timer.eDiscovery -ErrorAction:SilentlyContinue) ) {
+        Remove-Job -Name Timer.eDiscovery -Force
+    }
+    $timer = New-Object System.Timers.Timer -ArgumentList 82800000 # setup the timer to fire the elapsed event after 24 hours.
+    Register-ObjectEvent -InputObject $timer -EventName Elapsed -SourceIdentifier Timer.eDiscovery -Action $elapsedEventHandler
+    $timer.Start()
+
+    #Code Ends
+    # Initiating our migration task after setting up timer for timeout feature
+    Initiating-Migration
+}
+
+
+
+function Initiating-Migration {
     <#
 
         .SYNOPSIS
@@ -124,6 +157,8 @@ function Start-Migration {
         [CmdletBinding()]
         [Switch]$TurnOffDataCollection
     )
+
+    Write-Host "This session will become inactive after 23hours. " -ForegroundColor Yellow
 
     $OutputDirectoryName = Get-AppDirectory;
 
@@ -160,7 +195,7 @@ function Start-Migration {
     # Creating the log folder & timestamped log for each running instance
     $LogDirectory = "$OutputDirectoryName\Logs"
     $FileName = "$($global:AppNameShortHand)-$(Get-Date -Format 'yyyyMMddHHmmss').log"
-    $LogFile = "$LogDirectory\$FileName"
+    $global:LogFile = "$LogDirectory\$FileName"
     
     if ($(Test-Path -Path $LogDirectory) -eq $false) {
         New-Item -Path $LogDirectory -ItemType Directory -ErrorAction:SilentlyContinue | Out-Null
@@ -196,6 +231,16 @@ function Start-Migration {
     }
     catch {
         
+    }
+
+    try {
+        Remove-Job -Name Timer.eDiscovery -Force
+        $InfoMessage = "Closing Timer Job " 
+        Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
+        Write-Host "$(Get-Date) $InfoMessage"
+    }
+    catch {
+    
     }
 }
 
